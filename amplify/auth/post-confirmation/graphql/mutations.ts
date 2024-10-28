@@ -8,6 +8,29 @@ type GeneratedMutation<InputType, OutputType> = string & {
   __generatedMutationOutput: OutputType;
 };
 
+export const createInvitation = /* GraphQL */ `mutation CreateInvitation(
+  $condition: ModelInvitationConditionInput
+  $input: CreateInvitationInput!
+) {
+  createInvitation(condition: $condition, input: $input) {
+    createdAt
+    tenant {
+      createdAt
+      id
+      name
+      updatedAt
+      __typename
+    }
+    tenantId
+    token
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.CreateInvitationMutationVariables,
+  APITypes.CreateInvitationMutation
+>;
 export const createTenant = /* GraphQL */ `mutation CreateTenant(
   $condition: ModelTenantConditionInput
   $input: CreateTenantInput!
@@ -15,8 +38,11 @@ export const createTenant = /* GraphQL */ `mutation CreateTenant(
   createTenant(condition: $condition, input: $input) {
     createdAt
     id
+    invitations {
+      nextToken
+      __typename
+    }
     name
-    owner
     updatedAt
     __typename
   }
@@ -33,7 +59,7 @@ export const createTodo = /* GraphQL */ `mutation CreateTodo(
     content
     createdAt
     id
-    owner
+    tenantId
     updatedAt
     __typename
   }
@@ -42,6 +68,29 @@ export const createTodo = /* GraphQL */ `mutation CreateTodo(
   APITypes.CreateTodoMutationVariables,
   APITypes.CreateTodoMutation
 >;
+export const deleteInvitation = /* GraphQL */ `mutation DeleteInvitation(
+  $condition: ModelInvitationConditionInput
+  $input: DeleteInvitationInput!
+) {
+  deleteInvitation(condition: $condition, input: $input) {
+    createdAt
+    tenant {
+      createdAt
+      id
+      name
+      updatedAt
+      __typename
+    }
+    tenantId
+    token
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.DeleteInvitationMutationVariables,
+  APITypes.DeleteInvitationMutation
+>;
 export const deleteTenant = /* GraphQL */ `mutation DeleteTenant(
   $condition: ModelTenantConditionInput
   $input: DeleteTenantInput!
@@ -49,8 +98,11 @@ export const deleteTenant = /* GraphQL */ `mutation DeleteTenant(
   deleteTenant(condition: $condition, input: $input) {
     createdAt
     id
+    invitations {
+      nextToken
+      __typename
+    }
     name
-    owner
     updatedAt
     __typename
   }
@@ -67,7 +119,7 @@ export const deleteTodo = /* GraphQL */ `mutation DeleteTodo(
     content
     createdAt
     id
-    owner
+    tenantId
     updatedAt
     __typename
   }
@@ -76,6 +128,39 @@ export const deleteTodo = /* GraphQL */ `mutation DeleteTodo(
   APITypes.DeleteTodoMutationVariables,
   APITypes.DeleteTodoMutation
 >;
+export const invite = /* GraphQL */ `mutation Invite($email: AWSEmail!) {
+  invite(email: $email) {
+    success
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.InviteMutationVariables,
+  APITypes.InviteMutation
+>;
+export const updateInvitation = /* GraphQL */ `mutation UpdateInvitation(
+  $condition: ModelInvitationConditionInput
+  $input: UpdateInvitationInput!
+) {
+  updateInvitation(condition: $condition, input: $input) {
+    createdAt
+    tenant {
+      createdAt
+      id
+      name
+      updatedAt
+      __typename
+    }
+    tenantId
+    token
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.UpdateInvitationMutationVariables,
+  APITypes.UpdateInvitationMutation
+>;
 export const updateTenant = /* GraphQL */ `mutation UpdateTenant(
   $condition: ModelTenantConditionInput
   $input: UpdateTenantInput!
@@ -83,8 +168,11 @@ export const updateTenant = /* GraphQL */ `mutation UpdateTenant(
   updateTenant(condition: $condition, input: $input) {
     createdAt
     id
+    invitations {
+      nextToken
+      __typename
+    }
     name
-    owner
     updatedAt
     __typename
   }
@@ -101,7 +189,7 @@ export const updateTodo = /* GraphQL */ `mutation UpdateTodo(
     content
     createdAt
     id
-    owner
+    tenantId
     updatedAt
     __typename
   }

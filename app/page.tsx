@@ -1,57 +1,50 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { generateClient } from 'aws-amplify/data'
+import { generateClient } from '@/app/generateClient'
 import type { Schema } from '@/amplify/data/resource'
 import './../app/app.css'
-import { Amplify } from 'aws-amplify'
-import outputs from '@/amplify_outputs.json'
 import '@aws-amplify/ui-react/styles.css'
 import { Authenticator } from '@aws-amplify/ui-react'
+import { configureAmplify } from './configureAmplify'
 import { fetchAuthSession } from 'aws-amplify/auth'
 
-Amplify.configure(outputs, {
-  API: {
-    GraphQL: {
-      async headers() {
-        const session = await fetchAuthSession()
-        return {
-          Authorization: session.tokens?.idToken?.toString()!,
-        }
-      },
-    },
-    REST: {
-      async headers() {
-        const session = await fetchAuthSession()
-        return {
-          Authorization: session.tokens?.idToken?.toString()!,
-        }
-      },
-    },
-  },
-})
+configureAmplify()
 
-const client = generateClient<Schema>()
+const client = generateClient()
+
+async function retrieveFirstTenantID(): Promise<string> {
+  const session = await fetchAuthSession()
+  return JSON.parse(
+    session.tokens!.idToken!.payload['custom:tenant_ids'] as string
+  )[0]
+}
 
 export default function App() {
   const [todos, setTodos] = useState<Array<Schema['Todo']['type']>>([])
 
-  function listTodos() {
-    client.models.Todo.observeQuery().subscribe({
-      next: data => {
-        debugger
-        setTodos([...data.items])
-      },
-    })
-  }
-
   useEffect(() => {
+    async function listTodos() {
+      ;(await client).models.Todo.observeQuery({
+        filter: {
+          tenantId: { eq: await retrieveFirstTenantID() },
+        },
+      }).subscribe({
+        next: data => {
+          setTodos([...data.items])
+        },
+      })
+    }
+
     listTodos()
   }, [])
 
-  function createTodo() {
-    client.models.Todo.create({
-      content: window.prompt('Todo content'),
+  async function createTodo() {
+    const content = window.prompt('Todo content')
+    ;(await client).models.Todo.create({
+      tenantId: await retrieveFirstTenantID(),
+      id: crypto.randomUUID(),
+      content,
     })
   }
 

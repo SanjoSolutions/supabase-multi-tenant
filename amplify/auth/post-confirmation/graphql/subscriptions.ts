@@ -8,12 +8,37 @@ type GeneratedSubscription<InputType, OutputType> = string & {
   __generatedSubscriptionOutput: OutputType;
 };
 
+export const onCreateInvitation = /* GraphQL */ `subscription OnCreateInvitation(
+  $filter: ModelSubscriptionInvitationFilterInput
+) {
+  onCreateInvitation(filter: $filter) {
+    createdAt
+    tenant {
+      createdAt
+      id
+      name
+      updatedAt
+      __typename
+    }
+    tenantId
+    token
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedSubscription<
+  APITypes.OnCreateInvitationSubscriptionVariables,
+  APITypes.OnCreateInvitationSubscription
+>;
 export const onCreateTenant = /* GraphQL */ `subscription OnCreateTenant($filter: ModelSubscriptionTenantFilterInput) {
   onCreateTenant(filter: $filter) {
     createdAt
     id
+    invitations {
+      nextToken
+      __typename
+    }
     name
-    owner
     updatedAt
     __typename
   }
@@ -22,15 +47,12 @@ export const onCreateTenant = /* GraphQL */ `subscription OnCreateTenant($filter
   APITypes.OnCreateTenantSubscriptionVariables,
   APITypes.OnCreateTenantSubscription
 >;
-export const onCreateTodo = /* GraphQL */ `subscription OnCreateTodo(
-  $filter: ModelSubscriptionTodoFilterInput
-  $owner: String
-) {
-  onCreateTodo(filter: $filter, owner: $owner) {
+export const onCreateTodo = /* GraphQL */ `subscription OnCreateTodo($filter: ModelSubscriptionTodoFilterInput) {
+  onCreateTodo(filter: $filter) {
     content
     createdAt
     id
-    owner
+    tenantId
     updatedAt
     __typename
   }
@@ -39,12 +61,37 @@ export const onCreateTodo = /* GraphQL */ `subscription OnCreateTodo(
   APITypes.OnCreateTodoSubscriptionVariables,
   APITypes.OnCreateTodoSubscription
 >;
+export const onDeleteInvitation = /* GraphQL */ `subscription OnDeleteInvitation(
+  $filter: ModelSubscriptionInvitationFilterInput
+) {
+  onDeleteInvitation(filter: $filter) {
+    createdAt
+    tenant {
+      createdAt
+      id
+      name
+      updatedAt
+      __typename
+    }
+    tenantId
+    token
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedSubscription<
+  APITypes.OnDeleteInvitationSubscriptionVariables,
+  APITypes.OnDeleteInvitationSubscription
+>;
 export const onDeleteTenant = /* GraphQL */ `subscription OnDeleteTenant($filter: ModelSubscriptionTenantFilterInput) {
   onDeleteTenant(filter: $filter) {
     createdAt
     id
+    invitations {
+      nextToken
+      __typename
+    }
     name
-    owner
     updatedAt
     __typename
   }
@@ -53,15 +100,12 @@ export const onDeleteTenant = /* GraphQL */ `subscription OnDeleteTenant($filter
   APITypes.OnDeleteTenantSubscriptionVariables,
   APITypes.OnDeleteTenantSubscription
 >;
-export const onDeleteTodo = /* GraphQL */ `subscription OnDeleteTodo(
-  $filter: ModelSubscriptionTodoFilterInput
-  $owner: String
-) {
-  onDeleteTodo(filter: $filter, owner: $owner) {
+export const onDeleteTodo = /* GraphQL */ `subscription OnDeleteTodo($filter: ModelSubscriptionTodoFilterInput) {
+  onDeleteTodo(filter: $filter) {
     content
     createdAt
     id
-    owner
+    tenantId
     updatedAt
     __typename
   }
@@ -70,12 +114,37 @@ export const onDeleteTodo = /* GraphQL */ `subscription OnDeleteTodo(
   APITypes.OnDeleteTodoSubscriptionVariables,
   APITypes.OnDeleteTodoSubscription
 >;
+export const onUpdateInvitation = /* GraphQL */ `subscription OnUpdateInvitation(
+  $filter: ModelSubscriptionInvitationFilterInput
+) {
+  onUpdateInvitation(filter: $filter) {
+    createdAt
+    tenant {
+      createdAt
+      id
+      name
+      updatedAt
+      __typename
+    }
+    tenantId
+    token
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedSubscription<
+  APITypes.OnUpdateInvitationSubscriptionVariables,
+  APITypes.OnUpdateInvitationSubscription
+>;
 export const onUpdateTenant = /* GraphQL */ `subscription OnUpdateTenant($filter: ModelSubscriptionTenantFilterInput) {
   onUpdateTenant(filter: $filter) {
     createdAt
     id
+    invitations {
+      nextToken
+      __typename
+    }
     name
-    owner
     updatedAt
     __typename
   }
@@ -84,15 +153,12 @@ export const onUpdateTenant = /* GraphQL */ `subscription OnUpdateTenant($filter
   APITypes.OnUpdateTenantSubscriptionVariables,
   APITypes.OnUpdateTenantSubscription
 >;
-export const onUpdateTodo = /* GraphQL */ `subscription OnUpdateTodo(
-  $filter: ModelSubscriptionTodoFilterInput
-  $owner: String
-) {
-  onUpdateTodo(filter: $filter, owner: $owner) {
+export const onUpdateTodo = /* GraphQL */ `subscription OnUpdateTodo($filter: ModelSubscriptionTodoFilterInput) {
+  onUpdateTodo(filter: $filter) {
     content
     createdAt
     id
-    owner
+    tenantId
     updatedAt
     __typename
   }

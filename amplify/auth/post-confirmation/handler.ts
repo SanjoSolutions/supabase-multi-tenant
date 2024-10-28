@@ -2,6 +2,7 @@ import type { PostConfirmationTriggerHandler } from 'aws-lambda'
 import {
   CognitoIdentityProviderClient,
   AdminUpdateUserAttributesCommand,
+  AdminAddUserToGroupCommand,
 } from '@aws-sdk/client-cognito-identity-provider'
 import { env } from '$amplify/env/post-confirmation'
 
@@ -63,13 +64,23 @@ export const handler: PostConfirmationTriggerHandler = async event => {
       Username: event.userName,
       UserAttributes: [
         {
-          Name: 'custom:tenant_id',
-          Value: tenantId,
+          Name: 'custom:tenant_ids',
+          Value: JSON.stringify([tenantId]),
         },
       ],
     })
     const response = await cognitoIdentityProviderClient.send(command)
     console.log('response', response)
+
+    {
+      const command = new AdminAddUserToGroupCommand({
+        UserPoolId: event.userPoolId,
+        Username: event.userName,
+        GroupName: 'Admins',
+      })
+      const response = await cognitoIdentityProviderClient.send(command)
+      console.log('response2', response)
+    }
   } catch (error) {
     console.error(error)
   }

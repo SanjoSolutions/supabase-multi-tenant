@@ -1,5 +1,6 @@
 import { defineAuth } from '@aws-amplify/backend'
 import { postConfirmation } from './post-confirmation/resource.js'
+import { authorize } from '../data/authorize/resource.js'
 
 /**
  * Define and configure your auth resource
@@ -12,13 +13,16 @@ export const auth = defineAuth({
   triggers: {
     postConfirmation,
   },
+  groups: ['Admins'],
   userAttributes: {
-    'custom:tenant_id': {
+    'custom:tenant_ids': {
       dataType: 'String',
       mutable: true,
     },
   },
   access: allow => [
-    allow.resource(postConfirmation).to(['updateUserAttributes']),
+    allow
+      .resource(postConfirmation)
+      .to(['updateUserAttributes', 'addUserToGroup']),
   ],
 })

@@ -8,28 +8,80 @@ type GeneratedQuery<InputType, OutputType> = string & {
   __generatedQueryOutput: OutputType;
 };
 
+export const getInvitation = /* GraphQL */ `query GetInvitation($token: String!) {
+  getInvitation(token: $token) {
+    createdAt
+    tenant {
+      createdAt
+      id
+      name
+      updatedAt
+      __typename
+    }
+    tenantId
+    token
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.GetInvitationQueryVariables,
+  APITypes.GetInvitationQuery
+>;
 export const getTenant = /* GraphQL */ `query GetTenant($id: ID!) {
   getTenant(id: $id) {
     createdAt
     id
+    invitations {
+      nextToken
+      __typename
+    }
     name
-    owner
     updatedAt
     __typename
   }
 }
 ` as GeneratedQuery<APITypes.GetTenantQueryVariables, APITypes.GetTenantQuery>;
-export const getTodo = /* GraphQL */ `query GetTodo($id: ID!) {
-  getTodo(id: $id) {
+export const getTodo = /* GraphQL */ `query GetTodo($id: ID!, $tenantId: ID!) {
+  getTodo(id: $id, tenantId: $tenantId) {
     content
     createdAt
     id
-    owner
+    tenantId
     updatedAt
     __typename
   }
 }
 ` as GeneratedQuery<APITypes.GetTodoQueryVariables, APITypes.GetTodoQuery>;
+export const listInvitations = /* GraphQL */ `query ListInvitations(
+  $filter: ModelInvitationFilterInput
+  $limit: Int
+  $nextToken: String
+  $sortDirection: ModelSortDirection
+  $token: String
+) {
+  listInvitations(
+    filter: $filter
+    limit: $limit
+    nextToken: $nextToken
+    sortDirection: $sortDirection
+    token: $token
+  ) {
+    items {
+      createdAt
+      tenantId
+      token
+      updatedAt
+      __typename
+    }
+    nextToken
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.ListInvitationsQueryVariables,
+  APITypes.ListInvitationsQuery
+>;
 export const listTenants = /* GraphQL */ `query ListTenants(
   $filter: ModelTenantFilterInput
   $limit: Int
@@ -40,7 +92,6 @@ export const listTenants = /* GraphQL */ `query ListTenants(
       createdAt
       id
       name
-      owner
       updatedAt
       __typename
     }
@@ -54,15 +105,25 @@ export const listTenants = /* GraphQL */ `query ListTenants(
 >;
 export const listTodos = /* GraphQL */ `query ListTodos(
   $filter: ModelTodoFilterInput
+  $id: ModelIDKeyConditionInput
   $limit: Int
   $nextToken: String
+  $sortDirection: ModelSortDirection
+  $tenantId: ID
 ) {
-  listTodos(filter: $filter, limit: $limit, nextToken: $nextToken) {
+  listTodos(
+    filter: $filter
+    id: $id
+    limit: $limit
+    nextToken: $nextToken
+    sortDirection: $sortDirection
+    tenantId: $tenantId
+  ) {
     items {
       content
       createdAt
       id
-      owner
+      tenantId
       updatedAt
       __typename
     }

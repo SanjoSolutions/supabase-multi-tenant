@@ -1,5 +1,7 @@
 import { type ClientSchema, a, defineData } from '@aws-amplify/backend'
 import { postConfirmation } from '../auth/post-confirmation/resource.js'
+import { invite } from './invite/resource.js'
+import { authorize } from './authorize/resource.js'
 
 /*== STEP 1 ===============================================================
 The section below creates a Todo database table with a "content" field. Try
@@ -12,17 +14,33 @@ const schema = a
     Tenant: a
       .model({
         name: a.string(),
+        invitations: a.hasMany('Invitation', 'tenantId'),
       })
-      .authorization(allow => [
-        allow.owner().identityClaim('custom:tenant_id').to(['update']),
-      ]),
+      .authorization(allow => [allow.custom()]),
+    Invitation: a
+      .model({
+        tenantId: a.string().required(),
+        token: a.string().required(),
+        tenant: a.belongsTo('Tenant', 'tenantId'),
+      })
+      .identifier(['token'])
+      .authorization(allow => [allow.custom()]),
     Todo: a
       .model({
+        tenantId: a.id().required(),
+        id: a.id().required(),
         content: a.string(),
       })
-      .authorization(allow => [
-        allow.owner().identityClaim('custom:tenant_id'),
-      ]),
+      .identifier(['tenantId', 'id'])
+      .authorization(allow => [allow.custom()]),
+
+    invite: a
+      .mutation()
+      .arguments({
+        email: a.email().required(),
+      })
+      .handler(a.handler.function(invite).async())
+      .authorization(allow => [allow.group('Admins')]),
   })
   .authorization(allow => [allow.resource(postConfirmation)])
 
@@ -31,7 +49,11 @@ export type Schema = ClientSchema<typeof schema>
 export const data = defineData({
   schema,
   authorizationModes: {
-    defaultAuthorizationMode: 'userPool',
+    defaultAuthorizationMode: 'lambda',
+    lambdaAuthorizationMode: {
+      function: authorize,
+      timeToLiveInSeconds: 0,
+    },
     apiKeyAuthorizationMode: {
       expiresInDays: 30,
     },
