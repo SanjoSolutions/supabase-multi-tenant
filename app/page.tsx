@@ -3,22 +3,14 @@
 import { useState, useEffect } from 'react'
 import { generateClient } from '@/app/generateClient'
 import type { Schema } from '@/amplify/data/resource'
-import './../app/app.css'
 import '@aws-amplify/ui-react/styles.css'
 import { Authenticator } from '@aws-amplify/ui-react'
 import { configureAmplify } from './configureAmplify'
-import { fetchAuthSession } from 'aws-amplify/auth'
+import { retrieveFirstTenantID } from './retrieveFirstTenantID'
 
 configureAmplify()
 
 const client = generateClient()
-
-async function retrieveFirstTenantID(): Promise<string> {
-  const session = await fetchAuthSession()
-  return JSON.parse(
-    session.tokens!.idToken!.payload['custom:tenant_ids'] as string
-  )[0]
-}
 
 export default function App() {
   const [todos, setTodos] = useState<Array<Schema['Todo']['type']>>([])

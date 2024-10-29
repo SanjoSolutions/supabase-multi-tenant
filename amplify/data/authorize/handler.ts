@@ -79,6 +79,17 @@ function isValidMutation(
   variables: { [key: string]: any },
   userTenantIds: Set<string>
 ): boolean {
+  return (
+    isValidCreateMutation(definition, variables, userTenantIds) ||
+    isValidInviteMutation(definition, variables, userTenantIds)
+  )
+}
+
+function isValidCreateMutation(
+  definition: DefinitionNode,
+  variables: { [key: string]: any },
+  userTenantIds: Set<string>
+): boolean {
   const isValidGraphQL = Boolean(
     definition.kind === 'OperationDefinition' &&
       definition.operation === 'mutation' &&
@@ -100,6 +111,39 @@ function isValidMutation(
 
   if (isValidGraphQL) {
     const tenantID = variables.input?.tenantId
+    return Boolean(tenantID && userTenantIds.has(tenantID))
+  }
+
+  return false
+}
+
+function isValidInviteMutation(
+  definition: DefinitionNode,
+  variables: { [key: string]: any },
+  userTenantIds: Set<string>
+): boolean {
+  const isValidGraphQL = Boolean(
+    definition.kind === 'OperationDefinition' &&
+      definition.operation === 'mutation' &&
+      definition.variableDefinitions?.some(
+        variableDefinition =>
+          variableDefinition.variable.name.value === 'tenantId'
+      ) &&
+      definition.selectionSet.selections.every(
+        selection =>
+          selection.kind === 'Field' &&
+          selection.name.value === 'invite' &&
+          selection.arguments?.some(
+            argument =>
+              argument.name.value === 'tenantId' &&
+              argument.value.kind === 'Variable' &&
+              argument.value.name.value === 'tenantId'
+          )
+      )
+  )
+
+  if (isValidGraphQL) {
+    const tenantID = variables.tenantId
     return Boolean(tenantID && userTenantIds.has(tenantID))
   }
 

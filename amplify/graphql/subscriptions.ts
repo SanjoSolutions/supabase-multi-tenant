@@ -13,6 +13,7 @@ export const onCreateInvitation = /* GraphQL */ `subscription OnCreateInvitation
 ) {
   onCreateInvitation(filter: $filter) {
     createdAt
+    email
     tenant {
       createdAt
       id
@@ -29,6 +30,23 @@ export const onCreateInvitation = /* GraphQL */ `subscription OnCreateInvitation
 ` as GeneratedSubscription<
   APITypes.OnCreateInvitationSubscriptionVariables,
   APITypes.OnCreateInvitationSubscription
+>;
+export const onCreateMembershipRoles = /* GraphQL */ `subscription OnCreateMembershipRoles(
+  $filter: ModelSubscriptionMembershipRolesFilterInput
+  $userId: String
+) {
+  onCreateMembershipRoles(filter: $filter, userId: $userId) {
+    createdAt
+    roles
+    tenantId
+    updatedAt
+    userId
+    __typename
+  }
+}
+` as GeneratedSubscription<
+  APITypes.OnCreateMembershipRolesSubscriptionVariables,
+  APITypes.OnCreateMembershipRolesSubscription
 >;
 export const onCreateTenant = /* GraphQL */ `subscription OnCreateTenant($filter: ModelSubscriptionTenantFilterInput) {
   onCreateTenant(filter: $filter) {
@@ -66,6 +84,7 @@ export const onDeleteInvitation = /* GraphQL */ `subscription OnDeleteInvitation
 ) {
   onDeleteInvitation(filter: $filter) {
     createdAt
+    email
     tenant {
       createdAt
       id
@@ -82,6 +101,23 @@ export const onDeleteInvitation = /* GraphQL */ `subscription OnDeleteInvitation
 ` as GeneratedSubscription<
   APITypes.OnDeleteInvitationSubscriptionVariables,
   APITypes.OnDeleteInvitationSubscription
+>;
+export const onDeleteMembershipRoles = /* GraphQL */ `subscription OnDeleteMembershipRoles(
+  $filter: ModelSubscriptionMembershipRolesFilterInput
+  $userId: String
+) {
+  onDeleteMembershipRoles(filter: $filter, userId: $userId) {
+    createdAt
+    roles
+    tenantId
+    updatedAt
+    userId
+    __typename
+  }
+}
+` as GeneratedSubscription<
+  APITypes.OnDeleteMembershipRolesSubscriptionVariables,
+  APITypes.OnDeleteMembershipRolesSubscription
 >;
 export const onDeleteTenant = /* GraphQL */ `subscription OnDeleteTenant($filter: ModelSubscriptionTenantFilterInput) {
   onDeleteTenant(filter: $filter) {
@@ -119,6 +155,7 @@ export const onUpdateInvitation = /* GraphQL */ `subscription OnUpdateInvitation
 ) {
   onUpdateInvitation(filter: $filter) {
     createdAt
+    email
     tenant {
       createdAt
       id
@@ -135,6 +172,23 @@ export const onUpdateInvitation = /* GraphQL */ `subscription OnUpdateInvitation
 ` as GeneratedSubscription<
   APITypes.OnUpdateInvitationSubscriptionVariables,
   APITypes.OnUpdateInvitationSubscription
+>;
+export const onUpdateMembershipRoles = /* GraphQL */ `subscription OnUpdateMembershipRoles(
+  $filter: ModelSubscriptionMembershipRolesFilterInput
+  $userId: String
+) {
+  onUpdateMembershipRoles(filter: $filter, userId: $userId) {
+    createdAt
+    roles
+    tenantId
+    updatedAt
+    userId
+    __typename
+  }
+}
+` as GeneratedSubscription<
+  APITypes.OnUpdateMembershipRolesSubscriptionVariables,
+  APITypes.OnUpdateMembershipRolesSubscription
 >;
 export const onUpdateTenant = /* GraphQL */ `subscription OnUpdateTenant($filter: ModelSubscriptionTenantFilterInput) {
   onUpdateTenant(filter: $filter) {

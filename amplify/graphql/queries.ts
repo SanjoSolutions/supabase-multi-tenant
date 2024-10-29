@@ -11,6 +11,7 @@ type GeneratedQuery<InputType, OutputType> = string & {
 export const getInvitation = /* GraphQL */ `query GetInvitation($token: String!) {
   getInvitation(token: $token) {
     createdAt
+    email
     tenant {
       createdAt
       id
@@ -27,6 +28,20 @@ export const getInvitation = /* GraphQL */ `query GetInvitation($token: String!)
 ` as GeneratedQuery<
   APITypes.GetInvitationQueryVariables,
   APITypes.GetInvitationQuery
+>;
+export const getMembershipRoles = /* GraphQL */ `query GetMembershipRoles($tenantId: ID!, $userId: ID!) {
+  getMembershipRoles(tenantId: $tenantId, userId: $userId) {
+    createdAt
+    roles
+    tenantId
+    updatedAt
+    userId
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.GetMembershipRolesQueryVariables,
+  APITypes.GetMembershipRolesQuery
 >;
 export const getTenant = /* GraphQL */ `query GetTenant($id: ID!) {
   getTenant(id: $id) {
@@ -69,6 +84,7 @@ export const listInvitations = /* GraphQL */ `query ListInvitations(
   ) {
     items {
       createdAt
+      email
       tenantId
       token
       updatedAt
@@ -81,6 +97,38 @@ export const listInvitations = /* GraphQL */ `query ListInvitations(
 ` as GeneratedQuery<
   APITypes.ListInvitationsQueryVariables,
   APITypes.ListInvitationsQuery
+>;
+export const listMembershipRoles = /* GraphQL */ `query ListMembershipRoles(
+  $filter: ModelMembershipRolesFilterInput
+  $limit: Int
+  $nextToken: String
+  $sortDirection: ModelSortDirection
+  $tenantId: ModelIDKeyConditionInput
+  $userId: ID
+) {
+  listMembershipRoles(
+    filter: $filter
+    limit: $limit
+    nextToken: $nextToken
+    sortDirection: $sortDirection
+    tenantId: $tenantId
+    userId: $userId
+  ) {
+    items {
+      createdAt
+      roles
+      tenantId
+      updatedAt
+      userId
+      __typename
+    }
+    nextToken
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.ListMembershipRolesQueryVariables,
+  APITypes.ListMembershipRolesQuery
 >;
 export const listTenants = /* GraphQL */ `query ListTenants(
   $filter: ModelTenantFilterInput

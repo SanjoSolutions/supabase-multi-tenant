@@ -3,6 +3,7 @@
 import { useCallback } from 'react'
 import { configureAmplify } from '@/app/configureAmplify'
 import { generateClient } from '@/app/generateClient'
+import { retrieveFirstTenantID } from '../retrieveFirstTenantID.js'
 
 configureAmplify()
 
@@ -18,6 +19,7 @@ export default function () {
     const response = await (
       await client
     ).mutations.invite({
+      tenantId: await retrieveFirstTenantID(),
       email,
     })
     console.log('response', response)

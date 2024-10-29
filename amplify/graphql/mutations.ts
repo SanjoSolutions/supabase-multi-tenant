@@ -8,12 +8,27 @@ type GeneratedMutation<InputType, OutputType> = string & {
   __generatedMutationOutput: OutputType;
 };
 
+export const addRoleToUser = /* GraphQL */ `mutation AddRoleToUser($role: String!, $tenantId: ID!, $userId: ID!) {
+  addRoleToUser(role: $role, tenantId: $tenantId, userId: $userId)
+}
+` as GeneratedMutation<
+  APITypes.AddRoleToUserMutationVariables,
+  APITypes.AddRoleToUserMutation
+>;
+export const createAndJoinTenant = /* GraphQL */ `mutation CreateAndJoinTenant {
+  createAndJoinTenant
+}
+` as GeneratedMutation<
+  APITypes.CreateAndJoinTenantMutationVariables,
+  APITypes.CreateAndJoinTenantMutation
+>;
 export const createInvitation = /* GraphQL */ `mutation CreateInvitation(
   $condition: ModelInvitationConditionInput
   $input: CreateInvitationInput!
 ) {
   createInvitation(condition: $condition, input: $input) {
     createdAt
+    email
     tenant {
       createdAt
       id
@@ -30,6 +45,23 @@ export const createInvitation = /* GraphQL */ `mutation CreateInvitation(
 ` as GeneratedMutation<
   APITypes.CreateInvitationMutationVariables,
   APITypes.CreateInvitationMutation
+>;
+export const createMembershipRoles = /* GraphQL */ `mutation CreateMembershipRoles(
+  $condition: ModelMembershipRolesConditionInput
+  $input: CreateMembershipRolesInput!
+) {
+  createMembershipRoles(condition: $condition, input: $input) {
+    createdAt
+    roles
+    tenantId
+    updatedAt
+    userId
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.CreateMembershipRolesMutationVariables,
+  APITypes.CreateMembershipRolesMutation
 >;
 export const createTenant = /* GraphQL */ `mutation CreateTenant(
   $condition: ModelTenantConditionInput
@@ -74,6 +106,7 @@ export const deleteInvitation = /* GraphQL */ `mutation DeleteInvitation(
 ) {
   deleteInvitation(condition: $condition, input: $input) {
     createdAt
+    email
     tenant {
       createdAt
       id
@@ -90,6 +123,23 @@ export const deleteInvitation = /* GraphQL */ `mutation DeleteInvitation(
 ` as GeneratedMutation<
   APITypes.DeleteInvitationMutationVariables,
   APITypes.DeleteInvitationMutation
+>;
+export const deleteMembershipRoles = /* GraphQL */ `mutation DeleteMembershipRoles(
+  $condition: ModelMembershipRolesConditionInput
+  $input: DeleteMembershipRolesInput!
+) {
+  deleteMembershipRoles(condition: $condition, input: $input) {
+    createdAt
+    roles
+    tenantId
+    updatedAt
+    userId
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.DeleteMembershipRolesMutationVariables,
+  APITypes.DeleteMembershipRolesMutation
 >;
 export const deleteTenant = /* GraphQL */ `mutation DeleteTenant(
   $condition: ModelTenantConditionInput
@@ -128,15 +178,19 @@ export const deleteTodo = /* GraphQL */ `mutation DeleteTodo(
   APITypes.DeleteTodoMutationVariables,
   APITypes.DeleteTodoMutation
 >;
-export const invite = /* GraphQL */ `mutation Invite($email: AWSEmail!) {
-  invite(email: $email) {
-    success
-    __typename
-  }
+export const invite = /* GraphQL */ `mutation Invite($email: AWSEmail!, $tenantId: ID!) {
+  invite(email: $email, tenantId: $tenantId)
 }
 ` as GeneratedMutation<
   APITypes.InviteMutationVariables,
   APITypes.InviteMutation
+>;
+export const joinTenant = /* GraphQL */ `mutation JoinTenant($token: ID!) {
+  joinTenant(token: $token)
+}
+` as GeneratedMutation<
+  APITypes.JoinTenantMutationVariables,
+  APITypes.JoinTenantMutation
 >;
 export const updateInvitation = /* GraphQL */ `mutation UpdateInvitation(
   $condition: ModelInvitationConditionInput
@@ -144,6 +198,7 @@ export const updateInvitation = /* GraphQL */ `mutation UpdateInvitation(
 ) {
   updateInvitation(condition: $condition, input: $input) {
     createdAt
+    email
     tenant {
       createdAt
       id
@@ -160,6 +215,23 @@ export const updateInvitation = /* GraphQL */ `mutation UpdateInvitation(
 ` as GeneratedMutation<
   APITypes.UpdateInvitationMutationVariables,
   APITypes.UpdateInvitationMutation
+>;
+export const updateMembershipRoles = /* GraphQL */ `mutation UpdateMembershipRoles(
+  $condition: ModelMembershipRolesConditionInput
+  $input: UpdateMembershipRolesInput!
+) {
+  updateMembershipRoles(condition: $condition, input: $input) {
+    createdAt
+    roles
+    tenantId
+    updatedAt
+    userId
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.UpdateMembershipRolesMutationVariables,
+  APITypes.UpdateMembershipRolesMutation
 >;
 export const updateTenant = /* GraphQL */ `mutation UpdateTenant(
   $condition: ModelTenantConditionInput

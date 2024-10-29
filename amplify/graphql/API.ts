@@ -5,6 +5,7 @@
 export type Invitation = {
   __typename: "Invitation",
   createdAt: string,
+  email: string,
   tenant?: Tenant | null,
   tenantId: string,
   token: string,
@@ -26,6 +27,15 @@ export type ModelInvitationConnection = {
   nextToken?: string | null,
 };
 
+export type MembershipRoles = {
+  __typename: "MembershipRoles",
+  createdAt: string,
+  roles: Array< string | null >,
+  tenantId: string,
+  updatedAt: string,
+  userId: string,
+};
+
 export type Todo = {
   __typename: "Todo",
   content?: string | null,
@@ -38,10 +48,11 @@ export type Todo = {
 export type ModelInvitationFilterInput = {
   and?: Array< ModelInvitationFilterInput | null > | null,
   createdAt?: ModelStringInput | null,
+  email?: ModelStringInput | null,
   id?: ModelIDInput | null,
   not?: ModelInvitationFilterInput | null,
   or?: Array< ModelInvitationFilterInput | null > | null,
-  tenantId?: ModelStringInput | null,
+  tenantId?: ModelIDInput | null,
   token?: ModelStringInput | null,
   updatedAt?: ModelStringInput | null,
 };
@@ -108,6 +119,34 @@ export enum ModelSortDirection {
 }
 
 
+export type ModelMembershipRolesFilterInput = {
+  and?: Array< ModelMembershipRolesFilterInput | null > | null,
+  createdAt?: ModelStringInput | null,
+  id?: ModelIDInput | null,
+  not?: ModelMembershipRolesFilterInput | null,
+  or?: Array< ModelMembershipRolesFilterInput | null > | null,
+  roles?: ModelStringInput | null,
+  tenantId?: ModelIDInput | null,
+  updatedAt?: ModelStringInput | null,
+  userId?: ModelIDInput | null,
+};
+
+export type ModelIDKeyConditionInput = {
+  beginsWith?: string | null,
+  between?: Array< string | null > | null,
+  eq?: string | null,
+  ge?: string | null,
+  gt?: string | null,
+  le?: string | null,
+  lt?: string | null,
+};
+
+export type ModelMembershipRolesConnection = {
+  __typename: "ModelMembershipRolesConnection",
+  items:  Array<MembershipRoles | null >,
+  nextToken?: string | null,
+};
+
 export type ModelTenantFilterInput = {
   and?: Array< ModelTenantFilterInput | null > | null,
   createdAt?: ModelStringInput | null,
@@ -135,16 +174,6 @@ export type ModelTodoFilterInput = {
   updatedAt?: ModelStringInput | null,
 };
 
-export type ModelIDKeyConditionInput = {
-  beginsWith?: string | null,
-  between?: Array< string | null > | null,
-  eq?: string | null,
-  ge?: string | null,
-  gt?: string | null,
-  le?: string | null,
-  lt?: string | null,
-};
-
 export type ModelTodoConnection = {
   __typename: "ModelTodoConnection",
   items:  Array<Todo | null >,
@@ -154,15 +183,33 @@ export type ModelTodoConnection = {
 export type ModelInvitationConditionInput = {
   and?: Array< ModelInvitationConditionInput | null > | null,
   createdAt?: ModelStringInput | null,
+  email?: ModelStringInput | null,
   not?: ModelInvitationConditionInput | null,
   or?: Array< ModelInvitationConditionInput | null > | null,
-  tenantId?: ModelStringInput | null,
+  tenantId?: ModelIDInput | null,
   updatedAt?: ModelStringInput | null,
 };
 
 export type CreateInvitationInput = {
+  email: string,
   tenantId: string,
   token: string,
+};
+
+export type ModelMembershipRolesConditionInput = {
+  and?: Array< ModelMembershipRolesConditionInput | null > | null,
+  createdAt?: ModelStringInput | null,
+  not?: ModelMembershipRolesConditionInput | null,
+  or?: Array< ModelMembershipRolesConditionInput | null > | null,
+  roles?: ModelStringInput | null,
+  updatedAt?: ModelStringInput | null,
+  userId?: ModelStringInput | null,
+};
+
+export type CreateMembershipRolesInput = {
+  roles: Array< string | null >,
+  tenantId: string,
+  userId: string,
 };
 
 export type ModelTenantConditionInput = {
@@ -198,6 +245,11 @@ export type DeleteInvitationInput = {
   token: string,
 };
 
+export type DeleteMembershipRolesInput = {
+  tenantId: string,
+  userId: string,
+};
+
 export type DeleteTenantInput = {
   id: string,
 };
@@ -207,14 +259,16 @@ export type DeleteTodoInput = {
   tenantId: string,
 };
 
-export type EventInvocationResponse = {
-  __typename: "EventInvocationResponse",
-  success: boolean,
-};
-
 export type UpdateInvitationInput = {
+  email?: string | null,
   tenantId?: string | null,
   token: string,
+};
+
+export type UpdateMembershipRolesInput = {
+  roles?: Array< string | null > | null,
+  tenantId: string,
+  userId: string,
 };
 
 export type UpdateTenantInput = {
@@ -231,9 +285,10 @@ export type UpdateTodoInput = {
 export type ModelSubscriptionInvitationFilterInput = {
   and?: Array< ModelSubscriptionInvitationFilterInput | null > | null,
   createdAt?: ModelSubscriptionStringInput | null,
+  email?: ModelSubscriptionStringInput | null,
   id?: ModelSubscriptionIDInput | null,
   or?: Array< ModelSubscriptionInvitationFilterInput | null > | null,
-  tenantId?: ModelSubscriptionStringInput | null,
+  tenantId?: ModelSubscriptionIDInput | null,
   token?: ModelSubscriptionStringInput | null,
   updatedAt?: ModelSubscriptionStringInput | null,
 };
@@ -268,6 +323,17 @@ export type ModelSubscriptionIDInput = {
   notIn?: Array< string | null > | null,
 };
 
+export type ModelSubscriptionMembershipRolesFilterInput = {
+  and?: Array< ModelSubscriptionMembershipRolesFilterInput | null > | null,
+  createdAt?: ModelSubscriptionStringInput | null,
+  id?: ModelSubscriptionIDInput | null,
+  or?: Array< ModelSubscriptionMembershipRolesFilterInput | null > | null,
+  roles?: ModelSubscriptionStringInput | null,
+  tenantId?: ModelSubscriptionIDInput | null,
+  updatedAt?: ModelSubscriptionStringInput | null,
+  userId?: ModelStringInput | null,
+};
+
 export type ModelSubscriptionTenantFilterInput = {
   and?: Array< ModelSubscriptionTenantFilterInput | null > | null,
   createdAt?: ModelSubscriptionStringInput | null,
@@ -295,6 +361,7 @@ export type GetInvitationQuery = {
   getInvitation?:  {
     __typename: "Invitation",
     createdAt: string,
+    email: string,
     tenant?:  {
       __typename: "Tenant",
       createdAt: string,
@@ -305,6 +372,22 @@ export type GetInvitationQuery = {
     tenantId: string,
     token: string,
     updatedAt: string,
+  } | null,
+};
+
+export type GetMembershipRolesQueryVariables = {
+  tenantId: string,
+  userId: string,
+};
+
+export type GetMembershipRolesQuery = {
+  getMembershipRoles?:  {
+    __typename: "MembershipRoles",
+    createdAt: string,
+    roles: Array< string | null >,
+    tenantId: string,
+    updatedAt: string,
+    userId: string,
   } | null,
 };
 
@@ -356,9 +439,34 @@ export type ListInvitationsQuery = {
     items:  Array< {
       __typename: "Invitation",
       createdAt: string,
+      email: string,
       tenantId: string,
       token: string,
       updatedAt: string,
+    } | null >,
+    nextToken?: string | null,
+  } | null,
+};
+
+export type ListMembershipRolesQueryVariables = {
+  filter?: ModelMembershipRolesFilterInput | null,
+  limit?: number | null,
+  nextToken?: string | null,
+  sortDirection?: ModelSortDirection | null,
+  tenantId?: ModelIDKeyConditionInput | null,
+  userId?: string | null,
+};
+
+export type ListMembershipRolesQuery = {
+  listMembershipRoles?:  {
+    __typename: "ModelMembershipRolesConnection",
+    items:  Array< {
+      __typename: "MembershipRoles",
+      createdAt: string,
+      roles: Array< string | null >,
+      tenantId: string,
+      updatedAt: string,
+      userId: string,
     } | null >,
     nextToken?: string | null,
   } | null,
@@ -408,6 +516,23 @@ export type ListTodosQuery = {
   } | null,
 };
 
+export type AddRoleToUserMutationVariables = {
+  role: string,
+  tenantId: string,
+  userId: string,
+};
+
+export type AddRoleToUserMutation = {
+  addRoleToUser: boolean,
+};
+
+export type CreateAndJoinTenantMutationVariables = {
+};
+
+export type CreateAndJoinTenantMutation = {
+  createAndJoinTenant: string,
+};
+
 export type CreateInvitationMutationVariables = {
   condition?: ModelInvitationConditionInput | null,
   input: CreateInvitationInput,
@@ -417,6 +542,7 @@ export type CreateInvitationMutation = {
   createInvitation?:  {
     __typename: "Invitation",
     createdAt: string,
+    email: string,
     tenant?:  {
       __typename: "Tenant",
       createdAt: string,
@@ -427,6 +553,22 @@ export type CreateInvitationMutation = {
     tenantId: string,
     token: string,
     updatedAt: string,
+  } | null,
+};
+
+export type CreateMembershipRolesMutationVariables = {
+  condition?: ModelMembershipRolesConditionInput | null,
+  input: CreateMembershipRolesInput,
+};
+
+export type CreateMembershipRolesMutation = {
+  createMembershipRoles?:  {
+    __typename: "MembershipRoles",
+    createdAt: string,
+    roles: Array< string | null >,
+    tenantId: string,
+    updatedAt: string,
+    userId: string,
   } | null,
 };
 
@@ -474,6 +616,7 @@ export type DeleteInvitationMutation = {
   deleteInvitation?:  {
     __typename: "Invitation",
     createdAt: string,
+    email: string,
     tenant?:  {
       __typename: "Tenant",
       createdAt: string,
@@ -484,6 +627,22 @@ export type DeleteInvitationMutation = {
     tenantId: string,
     token: string,
     updatedAt: string,
+  } | null,
+};
+
+export type DeleteMembershipRolesMutationVariables = {
+  condition?: ModelMembershipRolesConditionInput | null,
+  input: DeleteMembershipRolesInput,
+};
+
+export type DeleteMembershipRolesMutation = {
+  deleteMembershipRoles?:  {
+    __typename: "MembershipRoles",
+    createdAt: string,
+    roles: Array< string | null >,
+    tenantId: string,
+    updatedAt: string,
+    userId: string,
   } | null,
 };
 
@@ -524,13 +683,19 @@ export type DeleteTodoMutation = {
 
 export type InviteMutationVariables = {
   email: string,
+  tenantId: string,
 };
 
 export type InviteMutation = {
-  invite?:  {
-    __typename: "EventInvocationResponse",
-    success: boolean,
-  } | null,
+  invite: boolean,
+};
+
+export type JoinTenantMutationVariables = {
+  token: string,
+};
+
+export type JoinTenantMutation = {
+  joinTenant: number,
 };
 
 export type UpdateInvitationMutationVariables = {
@@ -542,6 +707,7 @@ export type UpdateInvitationMutation = {
   updateInvitation?:  {
     __typename: "Invitation",
     createdAt: string,
+    email: string,
     tenant?:  {
       __typename: "Tenant",
       createdAt: string,
@@ -552,6 +718,22 @@ export type UpdateInvitationMutation = {
     tenantId: string,
     token: string,
     updatedAt: string,
+  } | null,
+};
+
+export type UpdateMembershipRolesMutationVariables = {
+  condition?: ModelMembershipRolesConditionInput | null,
+  input: UpdateMembershipRolesInput,
+};
+
+export type UpdateMembershipRolesMutation = {
+  updateMembershipRoles?:  {
+    __typename: "MembershipRoles",
+    createdAt: string,
+    roles: Array< string | null >,
+    tenantId: string,
+    updatedAt: string,
+    userId: string,
   } | null,
 };
 
@@ -598,6 +780,7 @@ export type OnCreateInvitationSubscription = {
   onCreateInvitation?:  {
     __typename: "Invitation",
     createdAt: string,
+    email: string,
     tenant?:  {
       __typename: "Tenant",
       createdAt: string,
@@ -608,6 +791,22 @@ export type OnCreateInvitationSubscription = {
     tenantId: string,
     token: string,
     updatedAt: string,
+  } | null,
+};
+
+export type OnCreateMembershipRolesSubscriptionVariables = {
+  filter?: ModelSubscriptionMembershipRolesFilterInput | null,
+  userId?: string | null,
+};
+
+export type OnCreateMembershipRolesSubscription = {
+  onCreateMembershipRoles?:  {
+    __typename: "MembershipRoles",
+    createdAt: string,
+    roles: Array< string | null >,
+    tenantId: string,
+    updatedAt: string,
+    userId: string,
   } | null,
 };
 
@@ -652,6 +851,7 @@ export type OnDeleteInvitationSubscription = {
   onDeleteInvitation?:  {
     __typename: "Invitation",
     createdAt: string,
+    email: string,
     tenant?:  {
       __typename: "Tenant",
       createdAt: string,
@@ -662,6 +862,22 @@ export type OnDeleteInvitationSubscription = {
     tenantId: string,
     token: string,
     updatedAt: string,
+  } | null,
+};
+
+export type OnDeleteMembershipRolesSubscriptionVariables = {
+  filter?: ModelSubscriptionMembershipRolesFilterInput | null,
+  userId?: string | null,
+};
+
+export type OnDeleteMembershipRolesSubscription = {
+  onDeleteMembershipRoles?:  {
+    __typename: "MembershipRoles",
+    createdAt: string,
+    roles: Array< string | null >,
+    tenantId: string,
+    updatedAt: string,
+    userId: string,
   } | null,
 };
 
@@ -706,6 +922,7 @@ export type OnUpdateInvitationSubscription = {
   onUpdateInvitation?:  {
     __typename: "Invitation",
     createdAt: string,
+    email: string,
     tenant?:  {
       __typename: "Tenant",
       createdAt: string,
@@ -716,6 +933,22 @@ export type OnUpdateInvitationSubscription = {
     tenantId: string,
     token: string,
     updatedAt: string,
+  } | null,
+};
+
+export type OnUpdateMembershipRolesSubscriptionVariables = {
+  filter?: ModelSubscriptionMembershipRolesFilterInput | null,
+  userId?: string | null,
+};
+
+export type OnUpdateMembershipRolesSubscription = {
+  onUpdateMembershipRoles?:  {
+    __typename: "MembershipRoles",
+    createdAt: string,
+    roles: Array< string | null >,
+    tenantId: string,
+    updatedAt: string,
+    userId: string,
   } | null,
 };
 
