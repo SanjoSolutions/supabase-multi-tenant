@@ -180,3 +180,20 @@ export const listTodos = /* GraphQL */ `query ListTodos(
   }
 }
 ` as GeneratedQuery<APITypes.ListTodosQueryVariables, APITypes.ListTodosQuery>;
+export const retrieveUserTenants = /* GraphQL */ `query RetrieveUserTenants {
+  retrieveUserTenants {
+    createdAt
+    id
+    invitations {
+      nextToken
+      __typename
+    }
+    name
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.RetrieveUserTenantsQueryVariables,
+  APITypes.RetrieveUserTenantsQuery
+>;

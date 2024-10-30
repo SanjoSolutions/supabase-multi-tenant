@@ -516,6 +516,23 @@ export type ListTodosQuery = {
   } | null,
 };
 
+export type RetrieveUserTenantsQueryVariables = {
+};
+
+export type RetrieveUserTenantsQuery = {
+  retrieveUserTenants:  Array< {
+    __typename: "Tenant",
+    createdAt: string,
+    id: string,
+    invitations?:  {
+      __typename: "ModelInvitationConnection",
+      nextToken?: string | null,
+    } | null,
+    name?: string | null,
+    updatedAt: string,
+  } >,
+};
+
 export type AddRoleToUserMutationVariables = {
   role: string,
   tenantId: string,

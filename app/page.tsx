@@ -1,44 +1,57 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useContext, useCallback } from 'react'
 import { generateClient } from '@/app/generateClient'
 import type { Schema } from '@/amplify/data/resource'
 import '@aws-amplify/ui-react/styles.css'
 import { Authenticator } from '@aws-amplify/ui-react'
 import { configureAmplify } from './configureAmplify'
-import { retrieveFirstTenantID } from './retrieveFirstTenantID'
+import { TenantIdContext } from './TenantIdContext.js'
+import { Subscription } from 'rxjs'
 
 configureAmplify()
 
-const client = generateClient()
+const clientPromise = generateClient()
 
 export default function App() {
   const [todos, setTodos] = useState<Array<Schema['Todo']['type']>>([])
 
+  const { tenantId } = useContext(TenantIdContext)
+
   useEffect(() => {
+    let subscription: Subscription | null = null
+
     async function listTodos() {
-      ;(await client).models.Todo.observeQuery({
+      const client = await clientPromise
+      subscription = client.models.Todo.observeQuery({
         filter: {
-          tenantId: { eq: await retrieveFirstTenantID() },
+          tenantId: { eq: tenantId },
         },
       }).subscribe({
         next: data => {
           setTodos([...data.items])
         },
       })
+      return () => subscription?.unsubscribe()
     }
 
     listTodos()
-  }, [])
+  }, [tenantId])
 
-  async function createTodo() {
-    const content = window.prompt('Todo content')
-    ;(await client).models.Todo.create({
-      tenantId: await retrieveFirstTenantID(),
-      id: crypto.randomUUID(),
-      content,
-    })
-  }
+  const createTodo = useCallback(
+    async function createTodo() {
+      if (tenantId) {
+        const content = window.prompt('Todo content')
+        const client = await clientPromise
+        client.models.Todo.create({
+          tenantId,
+          id: crypto.randomUUID(),
+          content,
+        })
+      }
+    },
+    [tenantId]
+  )
 
   return (
     <Authenticator>

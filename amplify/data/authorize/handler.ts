@@ -1,6 +1,12 @@
 import type { AppSyncAuthorizerHandler } from 'aws-lambda'
 import { CognitoJwtVerifier } from 'aws-jwt-verify'
 import { DefinitionNode, parse } from 'graphql'
+import { retrieveTenantIDs } from '../retrieveTenantIDs.js'
+import { CognitoIdentityProviderClient } from '@aws-sdk/client-cognito-identity-provider'
+
+const cognitoIdentityProviderClient = new CognitoIdentityProviderClient()
+
+console.log('env', process.env)
 
 const verifier = CognitoJwtVerifier.create({
   userPoolId: process.env.USER_POOL_ID as string,
@@ -172,7 +178,10 @@ export const handler: AppSyncAuthorizerHandler = async event => {
       } = event
 
       const userTenantIds = new Set<string>(
-        JSON.parse(payload['custom:tenant_ids'] as string)
+        await retrieveTenantIDs(
+          cognitoIdentityProviderClient,
+          payload['cognito:username']
+        )
       )
       console.log('userTenantIds', userTenantIds)
 

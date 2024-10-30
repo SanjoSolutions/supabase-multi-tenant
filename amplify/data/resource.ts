@@ -4,7 +4,7 @@ import { invite } from './invite/resource.js'
 import { authorize } from './authorize/resource.js'
 import { joinTenant } from './joinTenant/resource.js'
 import { createAndJoinTenant } from './createAndJoinTenant/resource.js'
-import { retrieveUserTenantIds } from './retrieveUserTenantIds/resource.js'
+import { retrieveUserTenants as retrieveUserTenants } from './retrieveUserTenants/resource.js'
 
 /*== STEP 1 ===============================================================
 The section below creates a Todo database table with a "content" field. Try
@@ -91,10 +91,10 @@ const schema = a
       )
       .authorization(allow => [allow.custom()]),
 
-    retrieveUserTenantIds: a
+    retrieveUserTenants: a
       .query()
-      .returns(a.string().required().array().required())
-      .handler(a.handler.function(retrieveUserTenantIds))
+      .returns(a.ref('Tenant').required().array().required())
+      .handler(a.handler.function(retrieveUserTenants))
       .authorization(allow => [allow.authenticated()]),
   })
   .authorization(allow => [
@@ -102,6 +102,8 @@ const schema = a
     allow.resource(invite),
     allow.resource(createAndJoinTenant),
     allow.resource(joinTenant),
+    allow.resource(authorize),
+    allow.resource(retrieveUserTenants),
   ])
 
 export type Schema = ClientSchema<typeof schema>

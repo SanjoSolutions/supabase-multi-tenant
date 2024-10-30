@@ -15,7 +15,7 @@ export async function addUserToTenant(
   tenantId: string
 ): Promise<JoinResult> {
   const tenantIDs = new Set(
-    await retrieveTenantIDs(cognitoIdentityProviderClient, identity)
+    await retrieveTenantIDs(cognitoIdentityProviderClient, identity.username)
   )
   if (tenantIDs.has(tenantId)) {
     return JoinResult.WasAlreadyMember

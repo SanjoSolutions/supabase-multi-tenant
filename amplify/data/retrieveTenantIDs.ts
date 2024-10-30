@@ -3,15 +3,14 @@ import {
   AdminGetUserCommand,
   CognitoIdentityProviderClient,
 } from '@aws-sdk/client-cognito-identity-provider'
-import type { AppSyncIdentityIAM } from 'aws-lambda'
 
 export async function retrieveTenantIDs(
   cognitoIdentityProviderClient: CognitoIdentityProviderClient,
-  identity: AppSyncIdentityIAM
+  username: string
 ): Promise<string[]> {
   const command = new AdminGetUserCommand({
     UserPoolId: env.AMPLIFY_AUTH_USERPOOL_ID,
-    Username: identity.username,
+    Username: username,
   })
   const response = await cognitoIdentityProviderClient.send(command)
   const attribute = response.UserAttributes!.find(

@@ -1,10 +1,13 @@
 'use client'
 
-import { fetchAuthSession } from 'aws-amplify/auth'
 import { Hub } from 'aws-amplify/utils'
 import * as bootstrap from 'bootstrap'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useContext, useEffect, useRef, useState } from 'react'
 import { generateClient } from './generateUserPoolClient.js'
+import { TenantIdContext } from './TenantIdContext.js'
+import { Schema } from '@/amplify/data/resource.js'
+
+type Tenant = Schema['Tenant']['type']
 
 const client = generateClient()
 
@@ -21,14 +24,14 @@ export default function () {
     [dropdownRef]
   )
 
-  const [tenantIds, setTenantIds] = useState<string[] | null>(null)
+  const [tenants, setTenants] = useState<Tenant[] | null>(null)
 
   useEffect(function () {
     async function updateTenantIds() {
-      const result = await client.queries.retrieveUserTenantIds()
-      const tenantIds = result.data
-      console.log('tenantIds', tenantIds)
-      setTenantIds(tenantIds)
+      const result = await client.queries.retrieveUserTenants()
+      const tenants = result.data
+      console.log('tenants', tenants)
+      setTenants(tenants)
     }
 
     const cancel = Hub.listen('auth', updateTenantIds)
@@ -38,7 +41,7 @@ export default function () {
     return () => cancel()
   }, [])
 
-  const [tenantId, setTenantId] = useState<string | null>(null)
+  const { tenantId, setTenantId } = useContext(TenantIdContext)
 
   const selectTenant = useCallback(function selectTenant(tenantId: string) {
     setTenantId(tenantId)
@@ -101,7 +104,7 @@ export default function () {
                 {tenantId ? `Tenant ${tenantId}` : 'Select tenant'}
               </a>
               <ul className='dropdown-menu'>
-                {tenantIds?.map(tenantId => (
+                {tenants?.map(tenantId => (
                   <li>
                     <a
                       className='dropdown-item'
@@ -113,7 +116,7 @@ export default function () {
                   </li>
                 ))}
 
-                {tenantIds && tenantIds.length >= 1 && (
+                {tenants && tenants.length >= 1 && (
                   <li>
                     <hr className='dropdown-divider' />
                   </li>
