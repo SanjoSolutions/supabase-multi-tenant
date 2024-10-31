@@ -26,6 +26,14 @@ See [CONTRIBUTING](CONTRIBUTING.md#security-issue-notifications) for more inform
 npx ampx generate graphql-client-code --out amplify/graphql
 ```
 
+## Database schema diffing
+
+```sh
+npx supabase db diff > supabase/migrations/20241030221828_changes.sql
+```
+
+See "[Diffing changes](https://supabase.com/docs/guides/local-development/overview#diffing-changes)".
+
 ## License
 
 This library is licensed under the MIT-0 License. See the LICENSE file.

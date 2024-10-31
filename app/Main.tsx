@@ -1,15 +1,31 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import NavBar from './NavBar.jsx'
-import { TenantIdContext } from './TenantIdContext.js'
+import { TenantContext } from './TenantContext.js'
+import { Tenant } from '@/types.js'
 
 export default function ({ children }: { children: React.ReactNode }) {
-  const [tenantId, setTenantId] = useState<string | null>(null)
+  const [tenant, setTenantState] = useState<Tenant | null>(null)
+
+  useEffect(function () {
+    const tenantSerialized = localStorage.getItem('tenant')
+    try {
+      setTenant(tenantSerialized ? JSON.parse(tenantSerialized) : null)
+    } catch (error: any) {
+      setTenant(null)
+    }
+  }, [])
+
+  const setTenant = useCallback(function setTenant(tenant: Tenant | null) {
+    setTenantState(tenant)
+    localStorage.setItem('tenant', JSON.stringify(tenant))
+  }, [])
+
   return (
-    <TenantIdContext.Provider value={{ tenantId, setTenantId }}>
+    <TenantContext.Provider value={{ tenant, setTenant }}>
       <NavBar />
-      {children}
-    </TenantIdContext.Provider>
+      <main className='p-2'>{children}</main>
+    </TenantContext.Provider>
   )
 }

@@ -1,43 +1,51 @@
 'use client'
 
-import { useCallback } from 'react'
+import { useCallback, useContext } from 'react'
 import { configureAmplify } from '@/app/configureAmplify'
-import { generateClient } from '@/app/generateClient'
-import { retrieveFirstTenantID } from '../retrieveFirstTenantID.js'
+import { createClient } from '@/utils/supabase/client.js'
+import { TenantContext } from '../TenantContext.js'
 
 configureAmplify()
 
-const client = generateClient()
+const supabase = createClient()
 
 export default function () {
+  const { tenant: tenant } = useContext(TenantContext)
+
   const onSubmit = useCallback(async function onSubmit(event: any) {
     event.preventDefault()
 
     const form = event.target
     const formData = new FormData(form)
     const email = formData.get('email')?.toString()!
-    const response = await (
-      await client
-    ).mutations.invite({
-      tenantId: await retrieveFirstTenantID(),
-      email,
+    const { data, error } = await supabase.functions.invoke('invite', {
+      body: {
+        tenantId: tenant!.id,
+        email,
+      },
     })
-    console.log('response', response)
+    debugger
+    if (!error) {
+    }
   }, [])
 
-  return (
+  return tenant ? (
     <form onSubmit={onSubmit}>
       <div>
         <label>
           Email
           <br />
-          <input name='email' type='email' autoFocus />
+          <input className='form-control' name='email' type='email' autoFocus />
         </label>
       </div>
 
       <div style={{ marginTop: '0.5rem' }}>
-        <button type='submit'>Invite</button>
+        <button className='btn btn-primary' type='submit'>
+          Invite
+        </button>
       </div>
     </form>
+  ) : (
+    <div className='alert alert-info'>Please select a tenant first.</div>
   )
 }

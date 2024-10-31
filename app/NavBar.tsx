@@ -1,15 +1,12 @@
 'use client'
 
-import { Hub } from 'aws-amplify/utils'
 import * as bootstrap from 'bootstrap'
 import { useCallback, useContext, useEffect, useRef, useState } from 'react'
-import { generateClient } from './generateUserPoolClient.js'
-import { TenantIdContext } from './TenantIdContext.js'
-import { Schema } from '@/amplify/data/resource.js'
+import { TenantContext as TenantContext } from './TenantContext.js'
+import { createClient } from '@/utils/supabase/client.js'
+import { Tenant, TenantMembership } from '@/types.js'
 
-type Tenant = Schema['Tenant']['type']
-
-const client = generateClient()
+const supabase = createClient()
 
 export default function () {
   const dropdownRef = useRef<HTMLAnchorElement>(null)
@@ -27,38 +24,62 @@ export default function () {
   const [tenants, setTenants] = useState<Tenant[] | null>(null)
 
   useEffect(function () {
-    async function updateTenantIds() {
-      const result = await client.queries.retrieveUserTenants()
+    async function updateTenants() {
+      const result = await supabase.from('tenants').select()
       const tenants = result.data
       console.log('tenants', tenants)
       setTenants(tenants)
     }
 
-    const cancel = Hub.listen('auth', updateTenantIds)
+    // TODO: Update tenant list when a tenant membership of the user is removed.
 
-    updateTenantIds()
+    updateTenants()
 
-    return () => cancel()
+    const subscription = supabase
+      .channel('tenant_memberships')
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'tenant_memberships' },
+        async function (payload) {
+          if (payload.eventType === 'INSERT' && payload.new) {
+            const tenantMembership = payload.new as TenantMembership
+            const { data: tenant, error } = await supabase
+              .from('tenants')
+              .select()
+              .eq('id', tenantMembership.tenant_id)
+              .single()
+            if (tenant) {
+              setTenants(tenants =>
+                tenants === null ? [tenant] : [...tenants, tenant]
+              )
+            }
+          }
+        }
+      )
+      .subscribe()
+    return () => {
+      subscription.unsubscribe()
+    }
   }, [])
 
-  const { tenantId, setTenantId } = useContext(TenantIdContext)
+  const { tenant, setTenant } = useContext(TenantContext)
 
-  const selectTenant = useCallback(function selectTenant(tenantId: string) {
-    setTenantId(tenantId)
+  const selectTenant = useCallback(function selectTenant(tenant: Tenant) {
+    setTenant(tenant)
   }, [])
 
   const onSelectTenant = useCallback(function onSelectTenant(
     event: any,
-    tenantId: string
+    tenant: Tenant
   ) {
     event.preventDefault()
-    selectTenant(tenantId)
+    selectTenant(tenant)
   },
   [])
 
   const onCreateTenant = useCallback(async function onCreateTenant(event: any) {
     event.preventDefault()
-    const result = await client.mutations.createAndJoinTenant()
+    const result = await supabase.rpc('create_tenant')
     if (result.data) {
       const tenantId = result.data
       selectTenant(tenantId)
@@ -101,17 +122,17 @@ export default function () {
                 data-bs-toggle='dropdown'
                 aria-expanded='false'
               >
-                {tenantId ? `Tenant ${tenantId}` : 'Select tenant'}
+                {tenant ? renderTenantName(tenant) : 'Select tenant'}
               </a>
               <ul className='dropdown-menu'>
-                {tenants?.map(tenantId => (
+                {tenants?.map(tenant => (
                   <li>
                     <a
                       className='dropdown-item'
                       href='#'
-                      onClick={event => onSelectTenant(event, tenantId)}
+                      onClick={event => onSelectTenant(event, tenant)}
                     >
-                      Tenant {tenantId}
+                      {renderTenantName(tenant)}
                     </a>
                   </li>
                 ))}
@@ -138,4 +159,8 @@ export default function () {
       </div>
     </nav>
   )
+}
+
+function renderTenantName(tenant: Tenant): string {
+  return tenant.name || `Tenant ${tenant.id}`
 }
