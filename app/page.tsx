@@ -63,20 +63,15 @@ export default function App() {
 
   return session?.user ? (
     <main>
-      <h1>My todos</h1>
-      <button onClick={createTodo}>+ new</button>
+      <h1>Todos</h1>
+      <button className='btn btn-primary' onClick={createTodo}>
+        Create new todo
+      </button>
       <ul>
         {todos.map(todo => (
           <li key={todo.id}>{todo.content}</li>
         ))}
       </ul>
-      <div>
-        🥳 App successfully hosted. Try creating a new todo.
-        <br />
-        <a href='https://docs.amplify.aws/nextjs/start/quickstart/nextjs-app-router-client-components/'>
-          Review next steps of this tutorial.
-        </a>
-      </div>
     </main>
   ) : (
     <div className='row justify-content-center'>

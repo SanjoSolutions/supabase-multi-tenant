@@ -37,6 +37,14 @@ export default function () {
 
     updateTenants()
 
+    const { data } = supabase.auth.onAuthStateChange(event => {
+      if (event === 'SIGNED_IN') {
+        updateTenants()
+      } else if (event === 'SIGNED_OUT') {
+        setTenants(null)
+      }
+    })
+
     const subscription = supabase
       .channel('tenant_memberships')
       .on(
@@ -61,6 +69,7 @@ export default function () {
       .subscribe()
     return () => {
       subscription.unsubscribe()
+      data.subscription.unsubscribe()
     }
   }, [])
 
@@ -111,11 +120,17 @@ export default function () {
         </button>
         <div className='collapse navbar-collapse' id='navbarSupportedContent'>
           <ul className='navbar-nav me-auto mb-2 mb-lg-0'>
-            <li className='nav-item'>
-              <a className='nav-link active' aria-current='page' href='/invite'>
-                Invite
-              </a>
-            </li>
+            {session?.user && (
+              <li className='nav-item'>
+                <a
+                  className='nav-link active'
+                  aria-current='page'
+                  href='/invite'
+                >
+                  Invite
+                </a>
+              </li>
+            )}
           </ul>
 
           <ul className='navbar-nav'>

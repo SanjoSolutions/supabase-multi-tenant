@@ -27,6 +27,16 @@ export default function ({ children }: { children: React.ReactNode }) {
     }
 
     f()
+
+    const { data } = supabase.auth.onAuthStateChange(event => {
+      if (event === 'SIGNED_IN') {
+        f()
+      }
+    })
+
+    return () => {
+      data.subscription.unsubscribe()
+    }
   }, [])
 
   const setTenant = useCallback(async function setTenant(
