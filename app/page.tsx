@@ -79,6 +79,10 @@ export default function App() {
       </div>
     </main>
   ) : (
-    <Login />
+    <div className='row justify-content-center'>
+      <div className='col-md-3'>
+        <Login />
+      </div>
+    </div>
   )
 }

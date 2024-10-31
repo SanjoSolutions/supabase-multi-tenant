@@ -25,18 +25,19 @@ export function Login() {
 
   return (
     <form onSubmit={onSubmit}>
-      <div className='form-floating'>
+      <div className='form-floating mb-2'>
         <input
           type='email'
           className='form-control'
           id='email'
           name='email'
           placeholder='name@example.com'
+          autoFocus
         />
         <label htmlFor='floatingInput'>Email address</label>
       </div>
 
-      <div className='form-floating'>
+      <div className='form-floating mb-2'>
         <input
           type='password'
           className='form-control'
@@ -52,7 +53,7 @@ export function Login() {
         type='submit'
         disabled={isSubmitting}
       >
-        Sign in
+        Log in
       </button>
     </form>
   )
