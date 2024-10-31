@@ -4,16 +4,14 @@ import { useState, useEffect, useContext, useCallback } from 'react'
 import '@aws-amplify/ui-react/styles.css'
 import { configureAmplify } from './configureAmplify'
 import { TenantContext } from './TenantContext.js'
-import { useSession } from './useSession.jsx'
 import { Todo } from '@/types.js'
-import { Login } from './Login.jsx'
 import { SupabaseContext } from './SupabaseContext.js'
+import { RequiresLogin } from './RequiresLogin.jsx'
 
 configureAmplify()
 
 export default function App() {
   const supabase = useContext(SupabaseContext)
-  const session = useSession()
   const [todos, setTodos] = useState<Todo[]>([])
 
   const { tenant } = useContext(TenantContext)
@@ -61,23 +59,19 @@ export default function App() {
     [tenant]
   )
 
-  return session?.user ? (
-    <main>
-      <h1>Todos</h1>
-      <button className='btn btn-primary' onClick={createTodo}>
-        Create new todo
-      </button>
-      <ul>
-        {todos.map(todo => (
-          <li key={todo.id}>{todo.content}</li>
-        ))}
-      </ul>
-    </main>
-  ) : (
-    <div className='row justify-content-center'>
-      <div className='col-md-3'>
-        <Login />
-      </div>
-    </div>
+  return (
+    <RequiresLogin>
+      <main>
+        <h1>Todos</h1>
+        <button className='btn btn-primary' onClick={createTodo}>
+          Create new todo
+        </button>
+        <ul>
+          {todos.map(todo => (
+            <li key={todo.id}>{todo.content}</li>
+          ))}
+        </ul>
+      </main>
+    </RequiresLogin>
   )
 }

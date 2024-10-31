@@ -6,7 +6,7 @@
 import 'jsr:@supabase/functions-js/edge-runtime.d.ts'
 import { supportBrowsers } from '../_shared/cors.ts'
 import { createClient } from 'npm:@supabase/supabase-js@2'
-import { Database } from '../../../database.types.ts'
+import { Database } from '../_shared/database.types.ts'
 
 const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY')
 
@@ -23,36 +23,59 @@ const handler = supportBrowsers(async function (_request) {
     }
   )
 
-  const { data, error } = await supabase.from('invitations').insert({
-    tenant_id: tenantId,
-    email,
-  })
+  const { data } = await supabase
+    .from('invitations')
+    .insert({
+      tenant_id: tenantId,
+      email,
+    })
+    .select('token')
+    .single()
 
-  // const invitationUrl = `http://localhost:3001/invitation/${result.data.createInvitation.token}`
+  const token = data?.token
 
-  // const res = await fetch('https://api.resend.com/emails', {
-  //   method: 'POST',
-  //   headers: {
-  //     'Content-Type': 'application/json',
-  //     Authorization: `Bearer ${RESEND_API_KEY}`,
-  //   },
-  //   body: JSON.stringify({
-  //     from: Deno.env.get('FROM_EMAIL'),
-  //     to: email,
-  //     subject: 'Invitation',
-  //     text: `You have been invited: ${invitationUrl}`,
-  //     html: `You have been invited: <a href="${invitationUrl}" target="_blank">open invitation</a>`,
-  //   }),
-  // })
+  if (token) {
+    const invitationUrl = new URL(
+      `/invitation/${token}`,
+      Deno.env.get('APP_URL')
+    ).toString()
 
-  // const data = await res.json()
+    const res = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${RESEND_API_KEY}`,
+      },
+      body: JSON.stringify({
+        from: Deno.env.get('EMAIL_FROM'),
+        to: email,
+        subject: 'Invitation',
+        text: `You have been invited: ${invitationUrl}`,
+        html: `You have been invited: <a href="${invitationUrl}" target="_blank">open invitation</a>`,
+      }),
+    })
 
-  return new Response(JSON.stringify(data), {
-    status: 200,
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  })
+    await res.json()
+
+    return new Response(JSON.stringify({}), {
+      status: 200,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+  } else {
+    return new Response(
+      JSON.stringify({
+        error: 'Failed to create invitation.',
+      }),
+      {
+        status: 500,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }
+    )
+  }
 })
 
 Deno.serve(handler)

@@ -1,71 +1,101 @@
 'use client'
 
-import { configureAmplify } from '@/app/configureAmplify'
-import { generateClient } from '@/app/generateAPIKeyAuthClient'
-import { Authenticator } from '@aws-amplify/ui-react'
-import { useCallback, useEffect, useState } from 'react'
-import type { Schema } from '@/amplify/data/resource'
+import { useCallback, useContext, useEffect, useState } from 'react'
 import { JoinResult } from '../JoinResult.js'
-
-type Invitation = Schema['Invitation']['type']
-
-configureAmplify()
-const client = generateClient()
+import { RequiresLogin } from '@/app/RequiresLogin.jsx'
+import { SupabaseContext } from '@/app/SupabaseContext.js'
+import { ShowLoading } from '@/app/ShowLoading.jsx'
 
 export default function ({ params: { token } }: { params: { token: string } }) {
-  const [invitation, setInvitation] = useState<Invitation | null>(null)
+  const supabase = useContext(SupabaseContext)
+  const [isOpenInvitation, setIsOpenInvitation] = useState<boolean | null>(null)
+  const [isAlreadyMemberOfTenant, setIsAlreadyMemberOfTenant] = useState<
+    boolean | null
+  >(null)
   const [isRequesting, setIsRequesting] = useState<boolean>(false)
   const [joinResult, setJoinResult] = useState<JoinResult | null>(null)
 
   useEffect(function () {
     async function request() {
-      const response = await client.models.Invitation.get({ token })
-      setInvitation(response.data)
+      const { data: isOpenInvitation } = await supabase.rpc(
+        'is_open_invitation',
+        {
+          token,
+        }
+      )
+
+      setIsOpenInvitation(isOpenInvitation)
     }
 
     request()
   }, [])
 
-  const join = useCallback(
-    async function join() {
-      setIsRequesting(true)
-      const result = await client.mutations.joinTenant(
+  useEffect(function () {
+    async function request() {
+      const { data: isAlreadyMemberOfTenant } = await supabase.rpc(
+        'is_already_member_of_tenant',
         {
-          token: invitation!.token,
-        },
-        {
-          authMode: 'userPool',
+          token,
         }
       )
-      console.log('result', result)
-      setIsRequesting(false)
-      setJoinResult(result.data)
-    },
-    [invitation]
-  )
+
+      setIsAlreadyMemberOfTenant(isAlreadyMemberOfTenant)
+    }
+
+    request()
+  }, [])
+
+  const join = useCallback(async function join() {
+    setIsRequesting(true)
+    const { error } = await await supabase.rpc('join_tenant', {
+      token,
+    })
+    setIsRequesting(false)
+    setJoinResult(error ? JoinResult.HasFailed : JoinResult.HasJoined)
+  }, [])
 
   return (
-    <Authenticator>
-      {({ signOut, user }) =>
-        isRequesting ? (
-          <div>Requesting...</div>
-        ) : joinResult !== null ? (
-          renderJoinResult(joinResult)
+    <ShowLoading
+      while={isOpenInvitation === null || isAlreadyMemberOfTenant === null}
+    >
+      <div className='d-flex h-100 flex-column justify-content-center align-items-center'>
+        {isAlreadyMemberOfTenant ? (
+          <div className='alert alert-info'>
+            You are already member of the tenant.
+          </div>
+        ) : isOpenInvitation ? (
+          <RequiresLogin>
+            {isRequesting ? (
+              <div>Requesting...</div>
+            ) : joinResult !== null ? (
+              renderJoinResult(joinResult)
+            ) : (
+              isOpenInvitation && (
+                <button className='btn btn-primary' onClick={join}>
+                  Join the tenant
+                </button>
+              )
+            )}
+          </RequiresLogin>
         ) : (
-          invitation && <button onClick={join}>Join the tenant</button>
-        )
-      }
-    </Authenticator>
+          <div className='alert alert-info'>
+            The invitation is no longer open or the token is invalid.
+          </div>
+        )}
+      </div>
+    </ShowLoading>
   )
 }
 
 function renderJoinResult(joinResult: JoinResult) {
   switch (joinResult) {
     case JoinResult.HasJoined:
-      return <div>You were added to the tenant.</div>
-    case JoinResult.WasAlreadyMember:
-      return <div>You were already member of the tenant.</div>
+      return (
+        <div className='alert alert-success'>You were added to the tenant.</div>
+      )
     case JoinResult.HasFailed:
-      return <div>Failed to join the tenant.</div>
+      return (
+        <div className='alert alert-danger'>Failed to join the tenant.</div>
+      )
   }
 }

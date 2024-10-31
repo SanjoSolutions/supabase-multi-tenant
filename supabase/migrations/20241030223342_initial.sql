@@ -6,7 +6,8 @@ create table "public"."invitations" (
     "token" uuid not null default gen_random_uuid(),
     "created_at" timestamp with time zone not null default now(),
     "tenant_id" bigint not null,
-    "email" text not null
+    "email" text not null,
+    "created_by" uuid not null default auth.uid()
 );
 
 
@@ -16,7 +17,8 @@ create table "public"."tenant_membership_roles" (
     "user_id" uuid not null,
     "tenant_id" bigint not null,
     "created_at" timestamp with time zone not null default now(),
-    "role" text not null
+    "role" text not null,
+    "joined_at" timestamp with time zone
 );
 
 
@@ -118,6 +120,47 @@ END;$function$
 ;
 REVOKE ALL ON FUNCTION public.create_tenant FROM PUBLIC;
 grant execute on function public.create_tenant to authenticated;
+COMMIT;
+
+BEGIN;
+CREATE OR REPLACE FUNCTION public.is_open_invitation(token uuid)
+ RETURNS boolean
+ LANGUAGE SQL
+ SECURITY DEFINER
+ SET search_path TO 'public'
+AS $$ SELECT EXISTS(SELECT 1 FROM invitations WHERE invitations.token = token AND joined_at = null) $$;
+REVOKE ALL ON FUNCTION public.is_open_invitation FROM PUBLIC;
+grant execute on function public.is_open_invitation to anon, authenticated;
+COMMIT;
+
+BEGIN;
+CREATE OR REPLACE FUNCTION public.is_already_member_of_tenant(token uuid)
+ RETURNS boolean
+ LANGUAGE SQL
+ SECURITY INVOKER
+AS $$ SELECT EXISTS(SELECT 1 FROM tenant_memberships WHERE user_id = (SELECT auth.uid()) AND tenant_id = (SELECT tenant_id FROM invitations WHERE invitations.token = token)) $$;
+REVOKE ALL ON FUNCTION public.is_already_member_of_tenant FROM PUBLIC;
+grant execute on function public.is_already_member_of_tenant to anon, authenticated;
+COMMIT;
+
+BEGIN;
+CREATE OR REPLACE FUNCTION public.join_tenant(token uuid)
+ RETURNS void
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+ SET search_path TO 'public'
+AS $$
+DECLARE
+  tenant_id int8;
+BEGIN
+  SELECT invitations.tenant_id INTO tenant_id FROM invitations WHERE invitations.token = join_tenant.token;
+  BEGIN
+    INSERT INTO tenant_memberships (tenant_id, user_id) VALUES (tenant_id, auth.uid());
+    UPDATE invitations SET joined_at = now() WHERE invitations.token = join_tenant.token;
+  COMMIT;
+END;$$;
+REVOKE ALL ON FUNCTION public.join_tenant FROM PUBLIC;
+grant execute on function public.join_tenant to anon, authenticated;
 COMMIT;
 
 grant delete on table "public"."invitations" to "anon";
@@ -330,7 +373,16 @@ grant truncate on table "public"."todos" to "service_role";
 
 grant update on table "public"."todos" to "service_role";
 
-create policy "Only tenant members can insert to the tenant"
+
+create policy "Only invitations that the user has created"
+on "public"."invitations"
+as permissive
+for select
+to authenticated
+using ((created_by = ( SELECT auth.uid() AS uid)));
+
+
+create policy "Only tenant members can invite to the tenant"
 on "public"."invitations"
 as permissive
 for insert

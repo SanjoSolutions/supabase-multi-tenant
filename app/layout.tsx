@@ -2,7 +2,8 @@ import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import '@/app/custom.scss'
 import '@/app/bootstrap.js'
-import Main from './Main.jsx'
+import { Content } from './Content.jsx'
+import clsx from 'clsx'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -17,9 +18,9 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang='en'>
-      <body className={inter.className}>
-        <Main>{children}</Main>
+    <html lang='en' className='h-100'>
+      <body className={clsx(inter.className, 'd-flex', 'flex-column', 'h-100')}>
+        <Content>{children}</Content>
       </body>
     </html>
   )

@@ -1,21 +1,22 @@
 'use client'
 
-import * as bootstrap from 'bootstrap'
 import { useCallback, useContext, useEffect, useRef, useState } from 'react'
-import { TenantContext as TenantContext } from './TenantContext.js'
+import { TenantContext } from './TenantContext.js'
 import { Tenant, TenantMembership } from '@/types.js'
 import { useSession } from './useSession.jsx'
 import { SupabaseContext } from './SupabaseContext.js'
+import Link from 'next/link.js'
 
-export default function () {
+export function NavBar() {
   const supabase = useContext(SupabaseContext)
-  const session = useSession()
+  const { session } = useSession()
 
   const dropdownRef = useRef<HTMLAnchorElement>(null)
 
   useEffect(
     function () {
       if (dropdownRef.current) {
+        const bootstrap = require('bootstrap')
         const dropdown = new bootstrap.Dropdown(dropdownRef.current)
         return () => dropdown.dispose()
       }
@@ -25,53 +26,56 @@ export default function () {
 
   const [tenants, setTenants] = useState<Tenant[] | null>(null)
 
-  useEffect(function () {
-    async function updateTenants() {
-      const result = await supabase.from('tenants').select()
-      const tenants = result.data
-      console.log('tenants', tenants)
-      setTenants(tenants)
-    }
-
-    // TODO: Update tenant list when a tenant membership of the user is removed.
-
-    updateTenants()
-
-    const { data } = supabase.auth.onAuthStateChange(event => {
-      if (event === 'SIGNED_IN') {
-        updateTenants()
-      } else if (event === 'SIGNED_OUT') {
-        setTenants(null)
+  useEffect(
+    function () {
+      async function updateTenants() {
+        const result = await supabase.from('tenants').select()
+        const tenants = result.data
+        console.log('tenants', tenants)
+        setTenants(tenants)
       }
-    })
 
-    const subscription = supabase
-      .channel('tenant_memberships')
-      .on(
-        'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'tenant_memberships' },
-        async function (payload) {
-          if (payload.eventType === 'INSERT' && payload.new) {
-            const tenantMembership = payload.new as TenantMembership
-            const { data: tenant, error } = await supabase
-              .from('tenants')
-              .select()
-              .eq('id', tenantMembership.tenant_id)
-              .single()
-            if (tenant) {
-              setTenants(tenants =>
-                tenants === null ? [tenant] : [...tenants, tenant]
-              )
+      // TODO: Update tenant list when a tenant membership of the user is removed.
+
+      updateTenants()
+
+      const { data } = supabase.auth.onAuthStateChange(event => {
+        if (event === 'SIGNED_IN') {
+          updateTenants()
+        } else if (event === 'SIGNED_OUT') {
+          setTenants(null)
+        }
+      })
+
+      const subscription = supabase
+        .channel('tenant_memberships')
+        .on(
+          'postgres_changes',
+          { event: 'INSERT', schema: 'public', table: 'tenant_memberships' },
+          async function (payload) {
+            if (payload.eventType === 'INSERT' && payload.new) {
+              const tenantMembership = payload.new as TenantMembership
+              const { data: tenant, error } = await supabase
+                .from('tenants')
+                .select()
+                .eq('id', tenantMembership.tenant_id)
+                .single()
+              if (tenant) {
+                setTenants(tenants =>
+                  tenants === null ? [tenant] : [...tenants, tenant]
+                )
+              }
             }
           }
-        }
-      )
-      .subscribe()
-    return () => {
-      subscription.unsubscribe()
-      data.subscription.unsubscribe()
-    }
-  }, [])
+        )
+        .subscribe()
+      return () => {
+        subscription.unsubscribe()
+        data.subscription.unsubscribe()
+      }
+    },
+    [supabase]
+  )
 
   const { tenant, setTenant } = useContext(TenantContext)
 
@@ -104,9 +108,9 @@ export default function () {
   return (
     <nav className='navbar navbar-expand-lg bg-body-tertiary'>
       <div className='container-fluid'>
-        <a className='navbar-brand' href='#'>
+        <Link className='navbar-brand' href='/'>
           Multi-tenant
-        </a>
+        </Link>
         <button
           className='navbar-toggler'
           type='button'
@@ -148,7 +152,7 @@ export default function () {
                 </a>
                 <ul className='dropdown-menu'>
                   {tenants?.map(tenant => (
-                    <li>
+                    <li key={tenant.id}>
                       <a
                         className='dropdown-item'
                         href='#'
