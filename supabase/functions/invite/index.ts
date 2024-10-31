@@ -28,8 +28,6 @@ const handler = supportBrowsers(async function (_request) {
     email,
   })
 
-  debugger
-
   // const invitationUrl = `http://localhost:3001/invitation/${result.data.createInvitation.token}`
 
   // const res = await fetch('https://api.resend.com/emails', {

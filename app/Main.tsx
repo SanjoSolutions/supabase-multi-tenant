@@ -1,26 +1,45 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useContext } from 'react'
 import NavBar from './NavBar.jsx'
 import { TenantContext } from './TenantContext.js'
 import { Tenant } from '@/types.js'
+import { SupabaseContext } from './SupabaseContext.js'
 
 export default function ({ children }: { children: React.ReactNode }) {
+  const supabase = useContext(SupabaseContext)
   const [tenant, setTenantState] = useState<Tenant | null>(null)
 
   useEffect(function () {
-    const tenantSerialized = localStorage.getItem('tenant')
-    try {
-      setTenant(tenantSerialized ? JSON.parse(tenantSerialized) : null)
-    } catch (error: any) {
-      setTenant(null)
+    async function f() {
+      const { data } = await supabase.auth.getSession()
+      const lastTenantId = data.session?.user.user_metadata.lastTenantId
+      if (lastTenantId) {
+        const { data } = await supabase
+          .from('tenants')
+          .select()
+          .eq('id', lastTenantId)
+          .single()
+        setTenant(data)
+      } else {
+        setTenant(null)
+      }
     }
+
+    f()
   }, [])
 
-  const setTenant = useCallback(function setTenant(tenant: Tenant | null) {
+  const setTenant = useCallback(async function setTenant(
+    tenant: Tenant | null
+  ) {
     setTenantState(tenant)
-    localStorage.setItem('tenant', JSON.stringify(tenant))
-  }, [])
+    await supabase.auth.updateUser({
+      data: {
+        lastTenantId: tenant?.id ?? null,
+      },
+    })
+  },
+  [])
 
   return (
     <TenantContext.Provider value={{ tenant, setTenant }}>

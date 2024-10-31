@@ -2,14 +2,13 @@
 
 import { useCallback, useContext } from 'react'
 import { configureAmplify } from '@/app/configureAmplify'
-import { createClient } from '@/utils/supabase/client.js'
 import { TenantContext } from '../TenantContext.js'
+import { SupabaseContext } from '../SupabaseContext.js'
 
 configureAmplify()
 
-const supabase = createClient()
-
 export default function () {
+  const supabase = useContext(SupabaseContext)
   const { tenant: tenant } = useContext(TenantContext)
 
   const onSubmit = useCallback(async function onSubmit(event: any) {
@@ -24,7 +23,6 @@ export default function () {
         email,
       },
     })
-    debugger
     if (!error) {
     }
   }, [])

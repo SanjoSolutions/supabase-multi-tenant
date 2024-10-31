@@ -3,12 +3,14 @@
 import * as bootstrap from 'bootstrap'
 import { useCallback, useContext, useEffect, useRef, useState } from 'react'
 import { TenantContext as TenantContext } from './TenantContext.js'
-import { createClient } from '@/utils/supabase/client.js'
 import { Tenant, TenantMembership } from '@/types.js'
-
-const supabase = createClient()
+import { useSession } from './useSession.jsx'
+import { SupabaseContext } from './SupabaseContext.js'
 
 export default function () {
+  const supabase = useContext(SupabaseContext)
+  const session = useSession()
+
   const dropdownRef = useRef<HTMLAnchorElement>(null)
 
   useEffect(
@@ -86,6 +88,10 @@ export default function () {
     }
   }, [])
 
+  const onLogOut = useCallback(async function onLogOut() {
+    const result = await supabase.auth.signOut()
+  }, [])
+
   return (
     <nav className='navbar navbar-expand-lg bg-body-tertiary'>
       <div className='container-fluid'>
@@ -113,47 +119,60 @@ export default function () {
           </ul>
 
           <ul className='navbar-nav'>
-            <li className='nav-item dropdown'>
-              <a
-                ref={dropdownRef}
-                className='nav-link dropdown-toggle'
-                href='#'
-                role='button'
-                data-bs-toggle='dropdown'
-                aria-expanded='false'
-              >
-                {tenant ? renderTenantName(tenant) : 'Select tenant'}
-              </a>
-              <ul className='dropdown-menu'>
-                {tenants?.map(tenant => (
+            {session?.user && (
+              <li className='nav-item dropdown'>
+                <a
+                  ref={dropdownRef}
+                  className='nav-link dropdown-toggle'
+                  href='#'
+                  role='button'
+                  data-bs-toggle='dropdown'
+                  aria-expanded='false'
+                >
+                  {tenant ? renderTenantName(tenant) : 'Select tenant'}
+                </a>
+                <ul className='dropdown-menu'>
+                  {tenants?.map(tenant => (
+                    <li>
+                      <a
+                        className='dropdown-item'
+                        href='#'
+                        onClick={event => onSelectTenant(event, tenant)}
+                      >
+                        {renderTenantName(tenant)}
+                      </a>
+                    </li>
+                  ))}
+
+                  {tenants && tenants.length >= 1 && (
+                    <li>
+                      <hr className='dropdown-divider' />
+                    </li>
+                  )}
+
                   <li>
                     <a
                       className='dropdown-item'
                       href='#'
-                      onClick={event => onSelectTenant(event, tenant)}
+                      onClick={onCreateTenant}
                     >
-                      {renderTenantName(tenant)}
+                      Create tenant
                     </a>
                   </li>
-                ))}
-
-                {tenants && tenants.length >= 1 && (
-                  <li>
-                    <hr className='dropdown-divider' />
-                  </li>
-                )}
-
-                <li>
-                  <a
-                    className='dropdown-item'
-                    href='#'
-                    onClick={onCreateTenant}
-                  >
-                    Create tenant
-                  </a>
-                </li>
-              </ul>
-            </li>
+                </ul>
+              </li>
+            )}
+            {session?.user && (
+              <li className='nav-item'>
+                <button
+                  className='btn btn-outline-secondary'
+                  type='button'
+                  onClick={onLogOut}
+                >
+                  Log out
+                </button>
+              </li>
+            )}
           </ul>
         </div>
       </div>

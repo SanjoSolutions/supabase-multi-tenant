@@ -4,15 +4,15 @@ import { useState, useEffect, useContext, useCallback } from 'react'
 import '@aws-amplify/ui-react/styles.css'
 import { configureAmplify } from './configureAmplify'
 import { TenantContext } from './TenantContext.js'
-import { createClient } from '@/utils/supabase/client.js'
 import { useSession } from './useSession.jsx'
 import { Todo } from '@/types.js'
+import { Login } from './Login.jsx'
+import { SupabaseContext } from './SupabaseContext.js'
 
 configureAmplify()
 
-export const supabase = createClient()
-
 export default function App() {
+  const supabase = useContext(SupabaseContext)
   const session = useSession()
   const [todos, setTodos] = useState<Todo[]>([])
 
@@ -79,6 +79,6 @@ export default function App() {
       </div>
     </main>
   ) : (
-    <div className='alert alert-info'>Please log in.</div>
+    <Login />
   )
 }

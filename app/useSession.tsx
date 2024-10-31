@@ -1,9 +1,11 @@
 'use client'
+
 import { Session } from '@supabase/supabase-js'
-import { useState, useEffect } from 'react'
-import { supabase } from './page.jsx'
+import { useState, useEffect, useContext } from 'react'
+import { SupabaseContext } from './SupabaseContext.js'
 
 export function useSession(): Session | null {
+  const supabase = useContext(SupabaseContext)
   const [session, setSession] = useState<Session | null>(null)
 
   useEffect(function () {
@@ -13,6 +15,14 @@ export function useSession(): Session | null {
     }
 
     f()
+
+    const { data } = supabase.auth.onAuthStateChange((event, session) => {
+      setSession(session)
+    })
+
+    return () => {
+      data.subscription.unsubscribe()
+    }
   }, [])
 
   return session
