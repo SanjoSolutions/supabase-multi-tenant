@@ -7,7 +7,8 @@ create table "public"."invitations" (
     "created_at" timestamp with time zone not null default now(),
     "tenant_id" bigint not null,
     "email" text not null,
-    "created_by" uuid not null default auth.uid()
+    "created_by" uuid not null default auth.uid(),
+    "joined_at" timestamp with time zone
 );
 
 
@@ -17,8 +18,7 @@ create table "public"."tenant_membership_roles" (
     "user_id" uuid not null,
     "tenant_id" bigint not null,
     "created_at" timestamp with time zone not null default now(),
-    "role" text not null,
-    "joined_at" timestamp with time zone
+    "role" text not null
 );
 
 
@@ -128,7 +128,7 @@ CREATE OR REPLACE FUNCTION public.is_open_invitation(token uuid)
  LANGUAGE SQL
  SECURITY DEFINER
  SET search_path TO 'public'
-AS $$ SELECT EXISTS(SELECT 1 FROM invitations WHERE invitations.token = token AND joined_at = null) $$;
+AS $$ SELECT EXISTS(SELECT 1 FROM invitations WHERE invitations.token = is_open_invitation.token AND joined_at IS NULL) $$;
 REVOKE ALL ON FUNCTION public.is_open_invitation FROM PUBLIC;
 grant execute on function public.is_open_invitation to anon, authenticated;
 COMMIT;

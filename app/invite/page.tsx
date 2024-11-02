@@ -17,8 +17,6 @@ export default function () {
   const [hasInvited, setHasInvited] = useState<boolean>(false)
   const [error, setError] = useState<string | null>(null)
 
-  console.log('a', hasTenantIdBeenInitialized, tenantId)
-
   const onSubmit = useCallback(
     async function onSubmit(event: any) {
       event.preventDefault()

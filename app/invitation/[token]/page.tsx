@@ -15,35 +15,43 @@ export default function ({ params: { token } }: { params: { token: string } }) {
   const [isRequesting, setIsRequesting] = useState<boolean>(false)
   const [joinResult, setJoinResult] = useState<JoinResult | null>(null)
 
-  useEffect(function () {
-    async function request() {
-      const { data: isOpenInvitation } = await supabase.rpc(
-        'is_open_invitation',
-        {
-          token,
-        }
-      )
+  useEffect(
+    function () {
+      async function request() {
+        console.log('token', token)
+        const { data: isOpenInvitation } = await supabase.rpc(
+          'is_open_invitation',
+          {
+            token,
+          }
+        )
 
-      setIsOpenInvitation(isOpenInvitation)
-    }
+        setIsOpenInvitation(isOpenInvitation)
+      }
 
-    request()
-  }, [])
+      request()
+    },
+    [token]
+  )
 
-  useEffect(function () {
-    async function request() {
-      const { data: isAlreadyMemberOfTenant } = await supabase.rpc(
-        'is_already_member_of_tenant',
-        {
-          token,
-        }
-      )
+  useEffect(
+    function () {
+      async function request() {
+        console.log('token', token)
+        const { data: isAlreadyMemberOfTenant } = await supabase.rpc(
+          'is_already_member_of_tenant',
+          {
+            token,
+          }
+        )
 
-      setIsAlreadyMemberOfTenant(isAlreadyMemberOfTenant)
-    }
+        setIsAlreadyMemberOfTenant(isAlreadyMemberOfTenant)
+      }
 
-    request()
-  }, [])
+      request()
+    },
+    [token]
+  )
 
   const join = useCallback(async function join() {
     setIsRequesting(true)

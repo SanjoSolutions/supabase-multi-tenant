@@ -55,14 +55,24 @@ const handler = supportBrowsers(async function (_request) {
       }),
     })
 
-    await res.json()
+    const responseData = await res.json()
 
-    return new Response(JSON.stringify({}), {
-      status: 200,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    })
+    if (responseData.statusCode === 200) {
+      return new Response(JSON.stringify({}), {
+        status: 200,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+    } else {
+      console.error(responseData)
+      return new Response(JSON.stringify({}), {
+        status: 500,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+    }
   } else {
     return new Response(
       JSON.stringify({

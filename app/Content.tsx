@@ -10,7 +10,6 @@ import { useLastTenantId } from './useLastTenantId.jsx'
 export function Content({ children }: { children: React.ReactNode }) {
   const supabase = useContext(SupabaseContext)
   const lastTenantId = useLastTenantId()
-  console.log('lastTenantId', lastTenantId)
   const [tenantId, setTenantId] = useState<number | null>(lastTenantId)
   const [tenant, setTenantState] = useState<Tenant | null>(null)
   const [hasInitializedTenantId, setHasInitializedTenantId] =

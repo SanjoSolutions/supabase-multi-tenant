@@ -6,10 +6,12 @@ import { Tenant, TenantMembership } from '@/types.js'
 import { useSession } from './useSession.jsx'
 import { SupabaseContext } from './SupabaseContext.js'
 import Link from 'next/link.js'
+import { Role } from './Role.js'
 
 export function NavBar() {
   const supabase = useContext(SupabaseContext)
   const { session } = useSession()
+  const { tenantId } = useContext(TenantContext)
 
   const dropdownRef = useRef<HTMLAnchorElement>(null)
 
@@ -105,6 +107,25 @@ export function NavBar() {
     const result = await supabase.auth.signOut()
   }, [])
 
+  const [roles, setRoles] = useState<Set<Role>>(new Set())
+
+  useEffect(
+    function () {
+      async function f() {
+        if (tenantId) {
+          const { data: roles } = await supabase
+            .from('tenant_membership_roles')
+            .select('role')
+            .eq('tenant_id', tenantId)
+          setRoles(new Set((roles as any) ?? []))
+        }
+      }
+
+      f()
+    },
+    [supabase, tenantId]
+  )
+
   return (
     <nav className='navbar navbar-expand-lg bg-body-tertiary'>
       <div className='container-fluid'>
@@ -132,6 +153,18 @@ export function NavBar() {
                   href='/invite'
                 >
                   Invite
+                </a>
+              </li>
+            )}
+
+            {session?.user && roles.has(Role.Admin) && (
+              <li className='nav-item'>
+                <a
+                  className='nav-link active'
+                  aria-current='page'
+                  href='/members'
+                >
+                  Members
                 </a>
               </li>
             )}
