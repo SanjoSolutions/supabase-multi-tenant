@@ -2,6 +2,7 @@
 
 import { useCallback, useContext, useState } from 'react'
 import { SupabaseContext } from './SupabaseContext.js'
+import Link from 'next/link.js'
 
 export function Login() {
   const supabase = useContext(SupabaseContext)
@@ -55,6 +56,10 @@ export function Login() {
       >
         Log in
       </button>
+
+      <div className='mt-2 text-center'>
+        <Link href='/request-password-reset-link'>Reset password</Link>
+      </div>
     </form>
   )
 }
