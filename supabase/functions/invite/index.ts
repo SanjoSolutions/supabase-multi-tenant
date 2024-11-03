@@ -47,7 +47,7 @@ const handler = supportBrowsers(async function (_request) {
         Authorization: `Bearer ${RESEND_API_KEY}`,
       },
       body: JSON.stringify({
-        from: Deno.env.get('EMAIL_FROM'),
+        from: `${Deno.env.get('FROM_NAME')} <${Deno.env.get('FROM_EMAIL')}>`,
         to: email,
         subject: 'Invitation',
         text: `You have been invited: ${invitationUrl}`,

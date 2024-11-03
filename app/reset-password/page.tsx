@@ -1,9 +1,11 @@
 'use client'
 
-import { useCallback, useContext, useState } from 'react'
+import { useContext } from 'react'
 import { SupabaseContext } from '../SupabaseContext.js'
+import { useCallback } from 'react'
+import { useState } from 'react'
 
-export default function ResetPassword() {
+export default function () {
   const supabase = useContext(SupabaseContext)
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false)
 
@@ -13,40 +15,44 @@ export default function ResetPassword() {
     event.preventDefault()
     const form = event.target
     const formData = new FormData(form)
-    const email = formData.get('email')?.toString()
-    if (email) {
+    const password = formData.get('password')?.toString()
+    if (password) {
       setIsSubmitting(true)
-      const { data, error } = await supabase.auth.resetPasswordForEmail(email)
+      const { error } = await supabase.auth.resetPasswordForEmail(password, {
+        redirectTo: new URL('/reset-password', location.href).toString(),
+      })
       setIsSubmitting(false)
+      if (error) {
+        setWasThereAnError(true)
+        setHasRequestBeenProcessed(false)
+      } else {
+        setHasRequestBeenProcessed(true)
+        setWasThereAnError(false)
+      }
     }
   },
   [])
 
   return (
-    <div className='row h-100 justify-content-center align-items-center'>
-      <div className='col col-md-3'>
-        <form onSubmit={onResetPassword}>
-          <div className='form-floating mb-2'>
-            <input
-              type='email'
-              className='form-control'
-              id='email'
-              name='email'
-              placeholder='name@example.com'
-              autoFocus
-            />
-            <label htmlFor='floatingInput'>Email address</label>
-          </div>
-
-          <button
-            className='btn btn-primary w-100 py-2'
-            type='submit'
-            disabled={isSubmitting}
-          >
-            Reset password
-          </button>
-        </form>
+    <form onSubmit={onResetPassword}>
+      <div className='form-floating mb-2'>
+        <input
+          type='password'
+          className='form-control'
+          id='password'
+          name='password'
+          autoFocus
+        />
+        <label htmlFor='floatingInput'>New password</label>
       </div>
-    </div>
+
+      <button
+        className='btn btn-primary w-100 py-2'
+        type='submit'
+        disabled={isSubmitting}
+      >
+        Change password
+      </button>
+    </form>
   )
 }

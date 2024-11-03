@@ -58,7 +58,7 @@ export function Login() {
       </button>
 
       <div className='mt-2 text-center'>
-        <Link href='/reset-password'>Reset password</Link>
+        <Link href='/request-password-reset-link'>Reset password</Link>
       </div>
     </form>
   )
