@@ -1,12 +1,67 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:saas/login_screen.dart';
+import 'package:saas/auth/magic_link.dart';
+import 'package:saas/auth/phone_sign_in.dart';
+import 'package:saas/auth/phone_sign_up.dart';
+import 'package:saas/auth/sign_in.dart';
+import 'package:saas/auth/update_password.dart';
+import 'package:saas/auth/verify_phone.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
+import 'package:supabase_auth_ui/supabase_auth_ui.dart';
 
 final supabase = Supabase.instance.client;
 
+final pathsAllowedLoggedOut = {
+  '/sign-up',
+  '/magic-link',
+  '/update-password', // TODO: Is it correct to include "/update-password"?
+  '/log-in',
+  '/phone-sign-up',
+  '/verify-phone'
+};
+
+final _router = GoRouter(
+    routes: [
+      GoRoute(
+          path: '/',
+          builder: (context, state) =>
+              MyHomePage(title: 'Flutter Demo Home Page')),
+      GoRoute(
+          path: '/home',
+          builder: (context, state) =>
+              MyHomePage(title: 'Flutter Demo Home Page')),
+      GoRoute(path: '/sign-up', builder: (context, state) => const SignUp()),
+      GoRoute(
+          path: '/magic-link', builder: (context, state) => const MagicLink()),
+      GoRoute(
+          path: '/update-password',
+          builder: (context, state) => const UpdatePassword()),
+      GoRoute(
+          path: '/log-in', builder: (context, state) => const PhoneSignIn()),
+      GoRoute(
+          path: '/phone-sign-up',
+          builder: (context, state) => const PhoneSignUp()),
+      GoRoute(
+          path: '/verify-phone',
+          builder: (context, state) => const VerifyPhone()),
+    ],
+    redirect: (BuildContext context, GoRouterState state) {
+      if (state.fullPath == '/log-in') {
+        if (supabase.auth.currentUser != null) {
+          return '/';
+        }
+      } else if (supabase.auth.currentUser == null &&
+          !pathsAllowedLoggedOut.contains(state.fullPath)) {
+        return '/log-in';
+      }
+
+      return null;
+    });
+
 Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
   await Supabase.initialize(
     url: 'http://127.0.0.1:54321',
     anonKey:
@@ -44,26 +99,7 @@ class MyApp extends StatelessWidget {
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
           useMaterial3: true,
         ),
-        routerConfig: GoRouter(
-            routes: [
-              GoRoute(
-                  path: '/',
-                  builder: (context, state) =>
-                      MyHomePage(title: 'Flutter Demo Home Page')),
-              GoRoute(
-                  path: '/log-in', builder: (context, state) => LoginScreen())
-            ],
-            redirect: (BuildContext context, GoRouterState state) {
-              if (state.fullPath == '/log-in') {
-                if (supabase.auth.currentUser != null) {
-                  return '/';
-                }
-              } else if (supabase.auth.currentUser == null) {
-                return '/log-in';
-              }
-
-              return null;
-            }),
+        routerConfig: _router,
         debugShowCheckedModeBanner: false);
   }
 }
